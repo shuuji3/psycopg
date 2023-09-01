@@ -5,48 +5,87 @@
 
 .. _copy:
 
-Using COPY TO and COPY FROM
-===========================
+..
+    Using COPY TO and COPY FROM
+    ===========================
 
-Psycopg allows to operate with `PostgreSQL COPY protocol`__. :sql:`COPY` is
-one of the most efficient ways to load data into the database (and to modify
-it, with some SQL creativity).
+COPY TO と COPY FROM を使用する
+===============================
+
+..
+    Psycopg allows to operate with `PostgreSQL COPY protocol`__. :sql:`COPY` is
+    one of the most efficient ways to load data into the database (and to modify
+    it, with some SQL creativity).
+
+psycopg を使うと、`PostgreSQL の COPY プロトコル`__ を使用した操作ができるようになります。:sql:`COPY` は、データベースにデータを読み込むための (そして SQL の創造性をいくらか発揮すれば、データを変更するための)、最も効率のよい方法の1つです。
 
 .. __: https://www.postgresql.org/docs/current/sql-copy.html
 
-Copy is supported using the `Cursor.copy()` method, passing it a query of the
-form :sql:`COPY ... FROM STDIN` or :sql:`COPY ... TO STDOUT`, and managing the
-resulting `Copy` object in a `!with` block:
+..
+    Copy is supported using the `Cursor.copy()` method, passing it a query of the
+    form :sql:`COPY ... FROM STDIN` or :sql:`COPY ... TO STDOUT`, and managing the
+    resulting `Copy` object in a `!with` block:
+
+Copy は、`Cursor.copy()` メソッドに :sql:`COPY ... FROM STDIN` または :sql:`COPY ... TO STDOUT` という形式のクエリを渡して、`!with` ブロック内で `Copy` オブジェクトを使用することでサポートされます。
+
+..
+    .. code:: python
+
+        with cursor.copy("COPY table_name (col1, col2) FROM STDIN") as copy:
+            # pass data to the 'copy' object using write()/write_row()
 
 .. code:: python
 
     with cursor.copy("COPY table_name (col1, col2) FROM STDIN") as copy:
-        # pass data to the 'copy' object using write()/write_row()
+        # 'copy' オブジェクトに write()/write_row() を使用してデータを渡す
 
-You can compose a COPY statement dynamically by using objects from the
-`psycopg.sql` module:
+..
+    You can compose a COPY statement dynamically by using objects from the
+    `psycopg.sql` module:
+
+COPY ステートメントは、次のように `psycopg.sql` モジュールのオブジェクトを使用して動的に作れます。
+
+..
+    .. code:: python
+
+        with cursor.copy(
+            sql.SQL("COPY {} TO STDOUT").format(sql.Identifier("table_name"))
+        ) as copy:
+            # read data from the 'copy' object using read()/read_row()
 
 .. code:: python
 
     with cursor.copy(
         sql.SQL("COPY {} TO STDOUT").format(sql.Identifier("table_name"))
     ) as copy:
-        # read data from the 'copy' object using read()/read_row()
+        # 'copy' オブジェクトから read()/read_row() を使用してデータを読み込む
+
+..
+    .. versionchanged:: 3.1
+
+        You can also pass parameters to `!copy()`, like in `~Cursor.execute()`:
+
+        .. code:: python
+
+            with cur.copy("COPY (SELECT * FROM table_name LIMIT %s) TO STDOUT", (3,)) as copy:
+                # expect no more than three records
 
 .. versionchanged:: 3.1
 
-    You can also pass parameters to `!copy()`, like in `~Cursor.execute()`:
+    `~Cursor.execute()` のように `!copy()` に引数を渡すこともできます。
 
     .. code:: python
 
         with cur.copy("COPY (SELECT * FROM table_name LIMIT %s) TO STDOUT", (3,)) as copy:
-            # expect no more than three records
+            # たかだか3レコードまでが期待される
 
-The connection is subject to the usual transaction behaviour, so, unless the
-connection is in autocommit, at the end of the COPY operation you will still
-have to commit the pending changes and you can still roll them back. See
-:ref:`transactions` for details.
+..
+    The connection is subject to the usual transaction behaviour, so, unless the
+    connection is in autocommit, at the end of the COPY operation you will still
+    have to commit the pending changes and you can still roll them back. See
+    :ref:`transactions` for details.
 
+コネクションは通常のトランザクション動作の影響を受けるため、コネクションが autocommit になっていない限り、COPY 操作の最後でも、保留中の変更をまだコミットする必要があり、その変更をロールバックすることもできます。詳細については、:ref:`transactions` を参照してください。
 
 .. _copy-in-row:
 
