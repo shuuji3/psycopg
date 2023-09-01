@@ -15,7 +15,7 @@
     Psycopg `~Connection` and `~Cursor` have counterparts `~AsyncConnection` and
     `~AsyncCursor` supporting an `asyncio` interface.
 
-Psycopg の `~Connection` と `~Cursor` には、対応する `~AsyncConnection` と
+psycopg の `~Connection` と `~Cursor` には、対応する `~AsyncConnection` と
 `~AsyncCursor` があり、`asyncio` インターフェイスをサポートしています。
 
 ..
@@ -35,7 +35,7 @@ Psycopg の `~Connection` と `~Cursor` には、対応する `~AsyncConnection`
                 (100, "abc'def"))
             await acur.execute("SELECT * FROM test")
             await acur.fetchone()
-            # (1, 100, "abc'def") を返します
+            # (1, 100, "abc'def") を返す
             async for record in acur:
                 print(record)
 
@@ -83,7 +83,7 @@ Psycopg の `~Connection` と `~Cursor` には、対応する `~AsyncConnection`
 
 .. warning::
 
-    Windows では、Psycopg はデフォルトの `~asyncio.ProactorEventLoop` と互換性がありません。たとえば、
+    Windows では、psycopg はデフォルトの `~asyncio.ProactorEventLoop` と互換性がありません。たとえば、
     `~asyncio.SelectorEventLoop` などの別のループを使ってください。
 
     たとえば、プログラムの初期で次のように使用できます。
@@ -136,16 +136,13 @@ Psycopg の `~Connection` と `~Cursor` には、対応する `~AsyncConnection`
     cases where it's useful to handle the objects manually and only `!close()` them
     when required.
 
-非同期のコネクションは *ほとんど* 期待通りのものですが、完全ではありません。`~Connection.connect()` と `~Connection.cursor()` は *コンテクストを返さない* ということに注意してください。どちらも *コンテクストとして使用できるオブジェクト* を返すファクトリーメソッドです。なぜなら、主導でオブジェクトを処理して必要なときにだけ `！close()` した便利なユースケースがいくつかあるためです。
+非同期のコネクションは *ほとんど* 期待通りのものですが、完全ではありません。`~Connection.connect()` と `~Connection.cursor()` は *コンテクストを返さない* ということに注意してください。どちらも *コンテクストとして使用できるオブジェクト* を返すファクトリーメソッドです。なぜなら、手動でオブジェクトを処理して、必要なときにだけ `!close()` すると便利なユースケースがいくつかあるためです。
 
 ..
     As a consequence you cannot use `!async with connect()`: you have to do it in
     two steps instead, as in
 
-結果として、 `!async with connect()` を使うことはできず、代わりに次のように2段階で使う必要があります。
-two steps instead, as in
-
-？？
+結果として `!async with connect()` を使うことはできず、代わりに次に示すように2段階で使う必要があります。
 
 .. code:: python
 
@@ -204,13 +201,9 @@ two steps instead, as in
     PostgreSQL postmaster to cancel the operation when it encounters the standard
     Python `CancelledError`__.
 
-非同期コネクションは同様の動作を提供します。非同期タスクがキャンセルされた場合
-そのコネクション上のすべての操作が同様にキャンセルされることに注意してください。
-？？
-非同期コネクションは、非同期タスクがキャンセルされると、接続上のすべての操作も同様にキャンセルされるという点で同様の動作を提供します。(Google翻訳)
-async connection provides similar behavior in that if the async task is
-cancelled, any operation on the connection will similarly be cancelled.
-キャンセルは、Ctrl-C や同様のシグナルにより間接的に起こることも、通常の方法で Python Task をキャンセルすることで直接的に起こることもあります。psycopg が Python 標準の `CancelledError`__ に遭遇したときは、PostgreSQL の postmaster に操作をキャンセルするように依頼します。
+非同期タスクがキャンセルされた場合に、そのコネクション上のすべての操作も同様にキャンセルされるという点で、非同期コネクションも同様の動作を提供します。キャンセルは、Ctrl-C や同様のシグナルにより間接的に起こることも、通常の方法で Python Task をキャンセルすることで直接的に起こることもあります。psycopg が Python 標準の `CancelledError`__ に遭遇したときは、PostgreSQL の postmaster に操作をキャンセルするように依頼します。
+
+.. __: https://docs.python.org/3/library/asyncio-task.html#task-cancellation
 
 ..
     Remember that cancelling the Python Task does not guarantee that the operation
@@ -225,9 +218,7 @@ cancelled, any operation on the connection will similarly be cancelled.
     Previous versions of Psycopg recommended setting up signal handlers to
     manually cancel connections.  This should no longer be necessary.
 
-以前のバージョンの psycopg では、コネクションを手動でキャンセルするためにシグナル ハンドラを設定することが推奨していました。これはもう必要ありません。
-
-.. __: https://docs.python.org/3/library/asyncio-task.html#task-cancellation
+以前のバージョンの psycopg では、コネクションを手動でキャンセルするためにシグナル ハンドラを設定することを推奨していました。これはもう必要ありません。
 
 .. index::
     pair: Asynchronous; Notifications
@@ -283,7 +274,7 @@ PostgreSQL は、ちょうど実行された操作に関する警告やデバッ
     and the severity. The object is the same found on the `~psycopg.Error.diag`
     attribute of the errors raised by the server:
 
-デフォルトでは、メッセージは受信後に無視されます。クライアントでメッセージを処理したい場合は、`Connection.add_notice_handler()` 関数を使って、どんなメッセージが送られてきた場合にも呼び出される関数を登録できます。メッセージは、メッセージテキストや severity などのサーバーから渡されたすべての情報を含む `~errors.Diagnostic` のインスタンスとして、そのコールバック関数に渡されます。このオブジェクトは、サーバーによって起こされたエラーの `~psycopg.Error.diag` 属性で見つかるものと同じです。
+デフォルトでは、メッセージは受信後に無視されます。クライアントでメッセージを処理したい場合は、`Connection.add_notice_handler()` 関数を使って、どんなメッセージを受信した場合にも呼び出される関数を登録できます。メッセージは、メッセージテキストや severity などのサーバーから渡されたすべての情報を含む `~errors.Diagnostic` のインスタンスとして、そのコールバック関数に渡されます。このオブジェクトは、サーバーによって起こされたエラーの `~psycopg.Error.diag` 属性で見つかるものと同じです。
 
 .. code:: python
 
@@ -345,7 +336,7 @@ psycopg は、PostgreSQL コマンド |LISTEN|_ と |NOTIFY|_ により提供さ
     documentation), you should keep the connection in `~Connection.autocommit`
     mode if you wish to receive or send notifications in a timely manner.
 
-セッションが通知と対話する方法のため (|NOTIFY|_のドキュメンテーションを参照)、通知をタイムリーに受信または送信したい場合は、コネクションを `~Connection.autocommit`モードに保つ必要があります。
+セッションが通知と対話する方法のため (|NOTIFY|_ のドキュメンテーションを参照)、通知をタイムリーに受信または送信したい場合は、コネクションを `~Connection.autocommit` モードに保つ必要があります。
 
 ..
     Notifications are received as instances of `Notify`. If you are reserving a
@@ -365,8 +356,11 @@ psycopg は、PostgreSQL コマンド |LISTEN|_ と |NOTIFY|_ により提供さ
 
     通知を処理するのに `AsyncConnection` は必要ありません。普通のブロッキングな `Connection` は完全に有効です。
 
-The following example will print notifications and stop when one containing
-the ``"stop"`` message is received.
+..
+    The following example will print notifications and stop when one containing
+    the ``"stop"`` message is received.
+
+次の例は、通知を出力して、``"stop"`` というメッセージを受信したときに停止するコードです。
 
 .. code:: python
 
@@ -380,7 +374,10 @@ the ``"stop"`` message is received.
             gen.close()
     print("there, I stopped")
 
-If you run some :sql:`NOTIFY` in a :program:`psql` session:
+..
+    If you run some :sql:`NOTIFY` in a :program:`psql` session:
+
+次のように :program:`psql` セッションで :sql:`NOTIFY` をいくつか実行すると、
 
 .. code:: psql
 
@@ -391,18 +388,26 @@ If you run some :sql:`NOTIFY` in a :program:`psql` session:
     =# NOTIFY mychan, 'stop';
     NOTIFY
 
-You may get output from the Python process such as::
+..
+    You may get output from the Python process such as::
+
+Python プロセスからは、たとえば次のような出力を得られるでしょう。
+
+.. code::
 
     Notify(channel='mychan', payload='hello', pid=961823)
     Notify(channel='mychan', payload='hey', pid=961823)
     Notify(channel='mychan', payload='stop', pid=961823)
     there, I stopped
 
-Alternatively, you can use `~Connection.add_notify_handler()` to register a
-callback function, which will be invoked whenever a notification is received,
-during the normal query processing; you will be then able to use the
-connection normally. Please note that in this case notifications will not be
-received immediately, but only during a connection operation, such as a query.
+..
+    Alternatively, you can use `~Connection.add_notify_handler()` to register a
+    callback function, which will be invoked whenever a notification is received,
+    during the normal query processing; you will be then able to use the
+    connection normally. Please note that in this case notifications will not be
+    received immediately, but only during a connection operation, such as a query.
+
+あるいは、`~Connection.add_notify_handler()` を使用して、普通のクエリ処理中にどんな通知を受信した場合にも呼び出されコールバック関数を登録することもできます。その後、コネクションを普通に使うことができます。この場合には、通知は即座には受信されず、クエリなどのコネクション操作中にだけ受信されるということに注意してください。
 
 .. code:: python
 
@@ -421,27 +426,59 @@ received immediately, but only during a connection operation, such as a query.
 
 .. _disconnections:
 
-Detecting disconnections
+..
+    Detecting disconnections
+    ------------------------
+
+コネクションの切断の検知
 ------------------------
 
-Sometimes it is useful to detect immediately when the connection with the
-database is lost. One brutal way to do so is to poll a connection in a loop
-running an endless stream of :sql:`SELECT 1`... *Don't* do so: polling is *so*
-out of fashion. Besides, it is inefficient (unless what you really want is a
-client-server generator of ones), it generates useless traffic and will only
-detect a disconnection with an average delay of half the polling time.
+..
+    Sometimes it is useful to detect immediately when the connection with the
+    database is lost. One brutal way to do so is to poll a connection in a loop
+    running an endless stream of :sql:`SELECT 1`... *Don't* do so: polling is *so*
+    out of fashion. Besides, it is inefficient (unless what you really want is a
+    client-server generator of ones), it generates useless traffic and will only
+    detect a disconnection with an average delay of half the polling time.
 
-A more efficient and timely way to detect a server disconnection is to create
-an additional connection and wait for a notification from the OS that this
-connection has something to say: only then you can run some checks. You
-can dedicate a thread (or an asyncio task) to wait on this connection: such
-thread will perform no activity until awaken by the OS.
+データベースとのコネクションが失われたときに、即座に検知できると便利な場合があります。これを行う容赦のない方法の1つは、:sql:`SELECT 1` の無限ストリームを実行するループの中で、コネクションをポーリングすることです……。そのようなことをするのは *やめてください*。ポーリングは、*非常に* 時代遅れの手法です。さらに、ポーリングは非常率であり (本当にほしいものがサーバー-クライアントによる数字の1のジェネレータでない限り)、無意味なトラフィックを生み出し、そして平均でポーリング時間の半分の遅延で1つの切断を検出できるだけです。
 
-In a normal (non asyncio) program you can use the `selectors` module. Because
-the `!Connection` implements a `~Connection.fileno()` method you can just
-register it as a file-like object. You can run such code in a dedicated thread
-(and using a dedicated connection) if the rest of the program happens to have
-something else to do too.
+..
+    A more efficient and timely way to detect a server disconnection is to create
+    an additional connection and wait for a notification from the OS that this
+    connection has something to say: only then you can run some checks. You
+    can dedicate a thread (or an asyncio task) to wait on this connection: such
+    thread will perform no activity until awaken by the OS.
+
+より効率よくタイムリーにサーバーの切断を検知する方法は、追加のコネクションを作り、このコネクションが何か言うことがあるという OS からの通知を待つことです。その時にだけ何らかのチェックを実行できます。スレッド (または asyncio タスク) を専用に割り当てて、このコネクション上で待ちます。このようなスレッドは、OS によって起こされるまでは、何もアクティビティを実行しません。
+
+..
+    In a normal (non asyncio) program you can use the `selectors` module. Because
+    the `!Connection` implements a `~Connection.fileno()` method you can just
+    register it as a file-like object. You can run such code in a dedicated thread
+    (and using a dedicated connection) if the rest of the program happens to have
+    something else to do too.
+
+普通の (asyncio ではない) プログラムの場合には、`selectors` モジュールが利用できます。`!Connection` は `~Connection.fileno()` メソッドを実装しているため、それをファイル ライクなオブジェクトとしてそのまま登録できます。もし残りのプログラムが何か他にするべきことができたとしても、そのコードは専用のスレッドで (そして専用のコネクションを使用して) 実行できます。
+
+..
+    .. code:: python
+
+        import selectors
+
+        sel = selectors.DefaultSelector()
+        sel.register(conn, selectors.EVENT_READ)
+        while True:
+            if not sel.select(timeout=60.0):
+                continue  # No FD activity detected in one minute
+
+            # Activity detected. Is the connection still ok?
+            try:
+                conn.execute("SELECT 1")
+            except psycopg.OperationalError:
+                # You were disconnected: do something useful such as panicking
+                logger.error("we lost our database!")
+                sys.exit(1)
 
 .. code:: python
 
@@ -451,18 +488,43 @@ something else to do too.
     sel.register(conn, selectors.EVENT_READ)
     while True:
         if not sel.select(timeout=60.0):
-            continue  # No FD activity detected in one minute
+            continue  # 1分以内に FD のアクティビティが何も検出されなかった
 
-        # Activity detected. Is the connection still ok?
+        # アクティビティが検出された。コネクションはまだ OK？
         try:
             conn.execute("SELECT 1")
         except psycopg.OperationalError:
-            # You were disconnected: do something useful such as panicking
+            # 切断されてしまったため、パニックになるなど、何か役に立つことをする
             logger.error("we lost our database!")
             sys.exit(1)
 
-In an `asyncio` program you can dedicate a `~asyncio.Task` instead and do
-something similar using `~asyncio.loop.add_reader`:
+..
+    In an `asyncio` program you can dedicate a `~asyncio.Task` instead and do
+    something similar using `~asyncio.loop.add_reader`:
+
+`asyncio` のプログラムでは、代わりに `~asyncio.Task` を専用に割り当てて、`~asyncio.loop.add_reader` を使用して同じようなことをします。
+
+..
+    .. code:: python
+
+        import asyncio
+
+        ev = asyncio.Event()
+        loop = asyncio.get_event_loop()
+        loop.add_reader(conn.fileno(), ev.set)
+
+        while True:
+            try:
+                await asyncio.wait_for(ev.wait(), 60.0)
+            except asyncio.TimeoutError:
+                continue  # No FD activity detected in one minute
+
+            # Activity detected. Is the connection still ok?
+            try:
+                await conn.execute("SELECT 1")
+            except psycopg.OperationalError:
+                # Guess what happened
+                ...
 
 .. code:: python
 
@@ -476,11 +538,11 @@ something similar using `~asyncio.loop.add_reader`:
         try:
             await asyncio.wait_for(ev.wait(), 60.0)
         except asyncio.TimeoutError:
-            continue  # No FD activity detected in one minute
+            continue  # 1分以内に FD のアクティビティが何も検出されなかった
 
-        # Activity detected. Is the connection still ok?
+        # アクティビティが検出された。コネクションはまだ OK？
         try:
             await conn.execute("SELECT 1")
         except psycopg.OperationalError:
-            # Guess what happened
+            # 何が起きたか推測する
             ...
