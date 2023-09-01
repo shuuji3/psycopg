@@ -14,9 +14,15 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) || true
 
 serve:
-	PSYCOPG_IMPL=python sphinx-autobuild . _build/html/
+	PSYCOPG_IMPL=python sphinx-autobuild --host=0.0.0.0 . _build/html/
 
-.PHONY: help serve env Makefile
+container-build:
+	docker build .. -t psycopg-docs
+
+container-serve:
+	docker run --rm -it -v ${CURDIR}/../:/app/ -w /app/docs/ -p 8000:8000 --name psycopg-docs psycopg-docs
+
+.PHONY: help serve container-build container-serve env Makefile
 
 env: .venv
 
