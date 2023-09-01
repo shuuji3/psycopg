@@ -15,7 +15,7 @@ Psycopg 3 は、プログラミング言語 Python_ のために新たにデザ�
     `Psycopg 2`_ or any other `DB-API 2.0`_ database adapter, but allows to use
     more modern PostgreSQL and Python features, such as:
 
-Psycopg 3 は、`Psycopg 2`_ やその他の `DB-API 2.0`_ データベースアダプターを使ったことのあるすべての人のために、馴染みのあるインターフェイスを提供します。しかし、以下のような PostgreSQL や Python のモダンな機能も利用できるようにします。
+Psycopg 3 は、`Psycopg 2`_ やその他の `DB-API 2.0`_ データベースアダプターを使ったことのあるすべての人のために、馴染みのあるインターフェイスを提供します。それだけではなく、以下のような PostgreSQL や Python のモダンな機能も利用できるようにします。
 
 ..
     - :ref:`Asynchronous support <async>`
