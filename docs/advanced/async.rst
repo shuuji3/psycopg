@@ -320,32 +320,50 @@ PostgreSQL は、ちょうど実行された操作に関する警告やデバッ
 
 .. _async-notify:
 
-Asynchronous notifications
---------------------------
+..
+    Asynchronous notifications
+    --------------------------
 
-Psycopg allows asynchronous interaction with other database sessions using the
-facilities offered by PostgreSQL commands |LISTEN|_ and |NOTIFY|_. Please
-refer to the PostgreSQL documentation for examples about how to use this form
-of communication.
+非同期通知
+----------
+
+..
+    Psycopg allows asynchronous interaction with other database sessions using the
+    facilities offered by PostgreSQL commands |LISTEN|_ and |NOTIFY|_. Please
+    refer to the PostgreSQL documentation for examples about how to use this form
+    of communication.
+
+psycopg は、PostgreSQL コマンド |LISTEN|_ と |NOTIFY|_ により提供される機能(？)を使用して、他のデータベースセッションとの非同期な対話が可能です。この形式の通信を使用する方法の例については、PostgreSQL のドキュメンテーションを参照してください。
 
 .. |LISTEN| replace:: :sql:`LISTEN`
 .. _LISTEN: https://www.postgresql.org/docs/current/sql-listen.html
 .. |NOTIFY| replace:: :sql:`NOTIFY`
 .. _NOTIFY: https://www.postgresql.org/docs/current/sql-notify.html
 
-Because of the way sessions interact with notifications (see |NOTIFY|_
-documentation), you should keep the connection in `~Connection.autocommit`
-mode if you wish to receive or send notifications in a timely manner.
+..
+    Because of the way sessions interact with notifications (see |NOTIFY|_
+    documentation), you should keep the connection in `~Connection.autocommit`
+    mode if you wish to receive or send notifications in a timely manner.
 
-Notifications are received as instances of `Notify`. If you are reserving a
-connection only to receive notifications, the simplest way is to consume the
-`Connection.notifies` generator. The generator can be stopped using
-`!close()`.
+セッションが通知と対話する方法のため (|NOTIFY|_のドキュメンテーションを参照)、通知をタイムリーに受信または送信したい場合は、コネクションを `~Connection.autocommit`モードに保つ必要があります。
+
+..
+    Notifications are received as instances of `Notify`. If you are reserving a
+    connection only to receive notifications, the simplest way is to consume the
+    `Connection.notifies` generator. The generator can be stopped using
+    `!close()`.
+
+通知は `Notify` のインスタンスとして受信されます。もし通知を受信するためだけのコネクションを予約したい場合は、最も簡単な方法は `Connection.notifies` ジェネレータを使用することです。ジェネレータは `!close()` を使用して停止できます。
+
+..
+    .. note::
+
+        You don't need an `AsyncConnection` to handle notifications: a normal
+        blocking `Connection` is perfectly valid.
 
 .. note::
 
-    You don't need an `AsyncConnection` to handle notifications: a normal
-    blocking `Connection` is perfectly valid.
+    通知を処理するのに `AsyncConnection` は必要ありません。普通のブロッキングな `Connection` は完全に有効です。
 
 The following example will print notifications and stop when one containing
 the ``"stop"`` message is received.
