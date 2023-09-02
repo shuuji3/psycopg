@@ -1,59 +1,105 @@
 .. currentmodule:: psycopg_pool
 
+..
+    .. _connection-pools:
+    Connection pools
+    ================
+
 .. _connection-pools:
 
-Connection pools
-================
+コネクションプール
+==================
 
-A `connection pool`__ is an object managing a set of connections and allowing
-their use in functions needing one. Because the time to establish a new
-connection can be relatively long, keeping connections open can reduce latency.
+..
+    A `connection pool`__ is an object managing a set of connections and allowing
+    their use in functions needing one. Because the time to establish a new
+    connection can be relatively long, keeping connections open can reduce latency.
+
+`コネクションプール`__ は、複数のコネクションをまとめて管理し、コネクションが必要なときに関数が利用できるようにするオブジェクトです。新しいコネクションを確立するための時間は相対的に長いため、コネクションをオープンにしておくことでレイテンシを削減できます。
 
 .. __: https://en.wikipedia.org/wiki/Connection_pool
 
-This page explains a few basic concepts of Psycopg connection pool's
-behaviour. Please refer to the `ConnectionPool` object API for details about
-the pool operations.
+..
+    This page explains a few basic concepts of Psycopg connection pool's
+    behaviour. Please refer to the `ConnectionPool` object API for details about
+    the pool operations.
 
-.. note:: The connection pool objects are distributed in a package separate
-   from the main `psycopg` package: use ``pip install "psycopg[pool]"`` or ``pip
-   install psycopg_pool`` to make the `psycopg_pool` package available. See
-   :ref:`pool-installation`.
+このページでは、psycopg のコネクションプールの動作について、いくつかの基本的な概念を説明します。プールの操作に関する詳細は、`ConnectionPool` オブジェクト API を参照してください。
 
+..
+    .. note:: The connection pool objects are distributed in a package separate
+       from the main `psycopg` package: use ``pip install "psycopg[pool]"`` or ``pip
+       install psycopg_pool`` to make the `psycopg_pool` package available. See
+       :ref:`pool-installation`.
 
-Pool life cycle
----------------
+.. note:: コネクションプールオブジェクトはメインの `psycopg` パッケージとは別のパッケージとして配布されています。`psycopg_pool` パッケージを使えるようにするには、``pip install "psycopg[pool]"`` または ``pip
+   install psycopg_pool`` を使ってください。詳しくは :ref:`pool-installation` を参照してください。
 
-A simple way to use the pool is to create a single instance of it, as a
-global object, and to use this object in the rest of the program, allowing
-other functions, modules, threads to use it::
+..
+    Pool life cycle
+    ---------------
 
-    # module db.py in your program
+プールのライフサイクル
+----------------------
+
+..
+    A simple way to use the pool is to create a single instance of it, as a
+    global object, and to use this object in the rest of the program, allowing
+    other functions, modules, threads to use it::
+
+プールを使うシンプルな方法は、次のようにグローバルオブジェクトとして単一のプールのインスタンスを作り、プログラムの他の場所でこのオブジェクトを使い、他の関数・モジュール・スレッドがプールを使えるようにするという方法です。
+
+..
+        # module db.py in your program
+        from psycopg_pool import ConnectionPool
+
+        pool = ConnectionPool(conninfo, **kwargs)
+        # the pool starts connecting immediately.
+
+        # in another module
+        from .db import pool
+
+        def my_function():
+            with pool.connection() as conn:
+                conn.execute(...)
+
+.. code:: python
+
+    # プログラム内の db.py モジュール
     from psycopg_pool import ConnectionPool
 
     pool = ConnectionPool(conninfo, **kwargs)
-    # the pool starts connecting immediately.
+    # プールは直後に接続を開始する
 
-    # in another module
+    # 他のモジュール内
     from .db import pool
 
     def my_function():
         with pool.connection() as conn:
             conn.execute(...)
 
-Ideally you may want to call `~ConnectionPool.close()` when the use of the
-pool is finished. Failing to call `!close()` at the end of the program is not
-terribly bad: probably it will just result in some warnings printed on stderr.
-However, if you think that it's sloppy, you could use the `atexit` module to
-have `!close()` called at the end of the program.
+..
+    Ideally you may want to call `~ConnectionPool.close()` when the use of the
+    pool is finished. Failing to call `!close()` at the end of the program is not
+    terribly bad: probably it will just result in some warnings printed on stderr.
+    However, if you think that it's sloppy, you could use the `atexit` module to
+    have `!close()` called at the end of the program.
 
-If you want to avoid starting to connect to the database at import time, and
-want to wait for the application to be ready, you can create the pool using
-`!open=False`, and call the `~ConnectionPool.open()` and
-`~ConnectionPool.close()` methods when the conditions are right. Certain
-frameworks provide callbacks triggered when the program is started and stopped
-(for instance `FastAPI startup/shutdown events`__): they are perfect to
-initiate and terminate the pool operations::
+理想的には、プールの使用が完了したときに `~ConnectionPool.close()` を呼び出したいかもしれませんが、プログラムの最後で `!close()` の呼び出しに失敗することは、それほど悪いことではありません。おそらくいくつかの警告が stderr に出力されるだけでしょう。しかし、それがいい加減なことだと感じる場合は、`atexit` モジュールを使用してプログラムの最後に `!close()` を呼び出すこともできます。
+
+..
+    If you want to avoid starting to connect to the database at import time, and
+    want to wait for the application to be ready, you can create the pool using
+    `!open=False`, and call the `~ConnectionPool.open()` and
+    `~ConnectionPool.close()` methods when the conditions are right. Certain
+    frameworks provide callbacks triggered when the program is started and stopped
+    (for instance `FastAPI startup/shutdown events`__): they are perfect to
+    initiate and terminate the pool operations::
+
+import 時にデータベースへの接続の開始を避け、アプリケーションの準備ができるのを待ちたい場合には、`!open=False` を使用してプールを作り、条件が正しいときに `~ConnectionPool.open()` と
+`~ConnectionPool.close()` メソッドを呼び出せます。特定のフレームワークはプログラムの開始と停止したときにトリガされるコールバックを提供しています (たとえば、`FastAPI の startup/shutdown イベント`__)。これらは、プール操作の開始と終了に最適です。
+
+.. code:: python
 
     pool = ConnectionPool(conninfo, open=False, **kwargs)
 
@@ -67,13 +113,17 @@ initiate and terminate the pool operations::
 
 .. __: https://fastapi.tiangolo.com/advanced/events/#events-startup-shutdown
 
-Creating a single pool as a global variable is not the mandatory use: your
-program can create more than one pool, which might be useful to connect to
-more than one database, or to provide different types of connections, for
-instance to provide separate read/write and read-only connections. The pool
-also acts as a context manager and is open and closed, if necessary, on
-entering and exiting the context block::
+..
+    Creating a single pool as a global variable is not the mandatory use: your
+    program can create more than one pool, which might be useful to connect to
+    more than one database, or to provide different types of connections, for
+    instance to provide separate read/write and read-only connections. The pool
+    also acts as a context manager and is open and closed, if necessary, on
+    entering and exiting the context block::
 
+単一のプールをグローバル変数をして作成することは必須ではありません。プログラムでは、2つ以上のプールを作成できます。これは、2つ以上のデータベースに接続したり、異なる種類のコネクション、たとえば readwrite と read-only のコネクションを別に提供する場合に便利です。また、プールはコンテクスト マネージャとして振る舞うため、コンテクスト ブロックに入るときと出るときに、必要に応じてオープンしたりクローズしたりします。
+
+..
     from psycopg_pool import ConnectionPool
 
     with ConnectionPool(conninfo, **kwargs) as pool:
@@ -81,20 +131,31 @@ entering and exiting the context block::
 
     # the pool is now closed
 
-When the pool is open, the pool's background workers start creating the
-requested `!min_size` connections, while the constructor (or the `!open()`
-method) returns immediately. This allows the program some leeway to start
-before the target database is up and running.  However, if your application is
-misconfigured, or the network is down, it means that the program will be able
-to start, but the threads requesting a connection will fail with a
-`PoolTimeout` only after the timeout on `~ConnectionPool.connection()` is
-expired. If this behaviour is not desirable (and you prefer your program to
-crash hard and fast, if the surrounding conditions are not right, because
-something else will respawn it) you should call the `~ConnectionPool.wait()`
-method after creating the pool, or call `!open(wait=True)`: these methods will
-block until the pool is full, or will raise a `PoolTimeout` exception if the
-pool isn't ready within the allocated time.
+.. code:: python
 
+    from psycopg_pool import ConnectionPool
+
+    with ConnectionPool(conninfo, **kwargs) as pool:
+        run_app(pool)
+
+    # ここでプールはクローズしている
+
+..
+    When the pool is open, the pool's background workers start creating the
+    requested `!min_size` connections, while the constructor (or the `!open()`
+    method) returns immediately. This allows the program some leeway to start
+    before the target database is up and running.  However, if your application is
+    misconfigured, or the network is down, it means that the program will be able
+    to start, but the threads requesting a connection will fail with a
+    `PoolTimeout` only after the timeout on `~ConnectionPool.connection()` is
+    expired. If this behaviour is not desirable (and you prefer your program to
+    crash hard and fast, if the surrounding conditions are not right, because
+    something else will respawn it) you should call the `~ConnectionPool.wait()`
+    method after creating the pool, or call `!open(wait=True)`: these methods will
+    block until the pool is full, or will raise a `PoolTimeout` exception if the
+    pool isn't ready within the allocated time.
+
+プールがオープンすると、プールのバックグラウンドワーカーが要求された `!min_size` のコネクションを作成を開始し、コンストラクタ (または `!open()` メソッド) はすぐに返ります。これにより、ターゲットのデータベースが起動する前にプログラムを開始するための余裕が生まれます。しかし、アプリケーションが正しく設定されていなかったり、ネットワークがダウンしている場合、プログラムが起動できたとしても、コネクションをリクエストしているスレッドが `~ConnectionPool.connection()` のタイムアウトが切れた後にのみ `PoolTimeout` とともに失敗するということです。この動作が望ましくない場合 (周囲の状況が正しくない場合には他の何かがプログラムを再起動するため、プログラムが激しく早くクラッシュしてほしい場合)、プールの作成後に `~ConnectionPool.wait()` メソッドを呼ぶか、`!open(wait=True)` を呼ぶ必要があります。これらのメソッドはプールがフルになるまでブロックするか、もしプールが割り当てられた時間内に ready にならなかった場合は `PoolTimeout` 例外を発生させます。
 
 Connections life cycle
 ----------------------

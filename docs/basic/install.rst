@@ -130,11 +130,16 @@ need::
 If you are not able to fulfill this requirement please follow the `binary
 installation`_.
 
+..
+    .. _pool-installation:
+
+    Installing the connection pool
+    ------------------------------
 
 .. _pool-installation:
 
-Installing the connection pool
-------------------------------
+コネクションプールのインストール
+--------------------------------
 
 The :ref:`Psycopg connection pools <connection-pools>` are distributed in a
 separate package from the `!psycopg` package itself, in order to allow a
