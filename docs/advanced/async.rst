@@ -2,11 +2,13 @@
 
 .. index:: asyncio
 
-.. _async:
-
 ..
+    .. _async:
+
     Asynchronous operations
     =======================
+
+.. _async:
 
 非同期操作
 ==========
@@ -96,11 +98,13 @@ psycopg の `~Connection` と `~Cursor` には、対応する `~AsyncConnection`
 
 .. index:: with
 
-.. _async-with:
-
 ..
+    .. _async-with:
+
     `!with` async connections
     -------------------------
+
+.. _async-with:
 
 `!with` async コネクション
 --------------------------
@@ -176,11 +180,14 @@ psycopg の `~Connection` と `~Cursor` には、対応する `~AsyncConnection`
 
 .. index:: Ctrl-C
 
-.. _async-ctrl-c:
 
 ..
+    .. _async-ctrl-c:
+
     Interrupting async operations
     -----------------------------
+
+.. _async-ctrl-c:
 
 非同期操作の中断
 ----------------
@@ -225,11 +232,13 @@ psycopg の `~Connection` と `~Cursor` には、対応する `~AsyncConnection`
     pair: LISTEN; SQL command
     pair: NOTIFY; SQL command
 
-.. _async-messages:
-
 ..
+    .. _async-messages:
+
     Server messages
     ---------------
+
+.. _async-messages:
 
 サーバー メッセージ
 -------------------
@@ -309,11 +318,13 @@ PostgreSQL は、ちょうど実行された操作に関する警告やデバッ
     pair: LISTEN; SQL command
     pair: NOTIFY; SQL command
 
-.. _async-notify:
-
 ..
+    .. _async-notify:
+
     Asynchronous notifications
     --------------------------
+
+.. _async-notify:
 
 非同期通知
 ----------
@@ -424,11 +435,13 @@ Python プロセスからは、たとえば次のような出力を得られる�
 
 .. index:: disconnections
 
-.. _disconnections:
-
 ..
+    .. _disconnections:
+
     Detecting disconnections
     ------------------------
+
+.. _disconnections:
 
 コネクションの切断の検知
 ------------------------
