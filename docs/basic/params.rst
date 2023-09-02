@@ -194,9 +194,15 @@ argument of the `Cursor.execute()` method::
 .. index::
     pair: Binary; Parameters
 
+..
+    .. _binary-data:
+
+    Binary parameters and results
+    -----------------------------
+
 .. _binary-data:
 
-Binary parameters and results
+バイナリ パラメータと結果
 -----------------------------
 
 PostgreSQL has two different ways to transmit data between client and server:

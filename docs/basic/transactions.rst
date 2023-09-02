@@ -1,12 +1,18 @@
 .. currentmodule:: psycopg
 
-.. index:: Transactions management
+.. index:: Transactions management!
 .. index:: InFailedSqlTransaction
 .. index:: idle in transaction
 
+..
+    .. _transactions:
+
+    Transactions management
+    =======================
+
 .. _transactions:
 
-Transactions management
+トランザクションの管理
 =======================
 
 Psycopg has a behaviour that may seem surprising compared to
