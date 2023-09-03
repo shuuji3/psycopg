@@ -183,34 +183,51 @@ import 時にデータベースへの接続の開始を避け、アプリケー�
 
 コネクションが期限切れになった場合 (`!max_lifetime` を超えた場合) や、壊れた状態でプールに戻された場合、`~ConnectionPool.check()` によってクローズしていることがわかった場合、プールはそのコネクションを破棄し、新しいコネクションの開始をバックグラウンドで試みます。
 
-Using connections from the pool
--------------------------------
+..
+    Using connections from the pool
+    -------------------------------
 
-The pool can be used to request connections from multiple threads or
-concurrent tasks - it is hardly useful otherwise! If more connections than the
-ones available in the pool are requested, the requesting threads are queued
-and are served a connection as soon as one is available, either because
-another client has finished using it or because the pool is allowed to grow
-(when `!max_size` > `!min_size`) and a new connection is ready.
+プールからコネクションを使用する
+-----------------------------------
 
-The main way to use the pool is to obtain a connection using the
-`~ConnectionPool.connection()` context, which returns a `~psycopg.Connection`
-or subclass::
+..
+    The pool can be used to request connections from multiple threads or
+    concurrent tasks - it is hardly useful otherwise! If more connections than the
+    ones available in the pool are requested, the requesting threads are queued
+    and are served a connection as soon as one is available, either because
+    another client has finished using it or because the pool is allowed to grow
+    (when `!max_size` > `!min_size`) and a new connection is ready.
+
+プールは複数のスレッドや並行タスクからコネクションをリクエストするために使えます――ほとんど役に立たないでしょう！ プール内で使用できるより多くのコネクションがリクエストされた場合、リクエストしているスレッドはキューに入れられ、別のクライアントが使用を完了したか、プールの拡大が許可されているので (`!max_size` > `!min_size` の場合) 新しいコネクションの準備ができる場合、利用可能になるとすぐにコネクションが提供されます。
+
+..
+    The main way to use the pool is to obtain a connection using the
+    `~ConnectionPool.connection()` context, which returns a `~psycopg.Connection`
+    or subclass::
+
+プールの主な使用方法は、次のように `~psycopg.Connection` またはそのサブクラスを返す `~ConnectionPool.connection()` コンテクストを使用してコネクションを取得することです。
+
+.. code:: python
 
     with my_pool.connection() as conn:
         conn.execute("what you want")
 
-The `!connection()` context behaves like the `~psycopg.Connection` object
-context: at the end of the block, if there is a transaction open, it will be
-committed, or rolled back if the context is exited with as exception.
+..
+    The `!connection()` context behaves like the `~psycopg.Connection` object
+    context: at the end of the block, if there is a transaction open, it will be
+    committed, or rolled back if the context is exited with as exception.
 
-At the end of the block the connection is returned to the pool and shouldn't
-be used anymore by the code which obtained it. If a `!reset()` function is
-specified in the pool constructor, it is called on the connection before
-returning it to the pool. Note that the `!reset()` function is called in a
-worker thread, so that the thread which used the connection can keep its
-execution without being slowed down by it.
+`!connection()` コンテクストは `~psycopg.Connection` オブジェクトのコンテクストのように振る舞います。ブロックの終わりでもしオープンなトランザクションが存在する場合、トランザクションはコミットされるか、コンテクストが例外とともに終了した場合はロールバックされます。
 
+..
+    At the end of the block the connection is returned to the pool and shouldn't
+    be used anymore by the code which obtained it. If a `!reset()` function is
+    specified in the pool constructor, it is called on the connection before
+    returning it to the pool. Note that the `!reset()` function is called in a
+    worker thread, so that the thread which used the connection can keep its
+    execution without being slowed down by it.
+
+ブロックの終わりで、コネクションはプールに返され、そのコネクションを取得したコードにはもう使用されません。もしプールのコンストラクタで `!reset()` 関数が指定されていた場合、プールに返される前にコネクションで呼ばれます。`!reset()` 関数は、コネクションを使用したスレッドが遅くならならずに実行を続けられるようにするため、ワーカースレッド内で呼ばれることに注意してください。
 
 Pool connection and sizing
 --------------------------
