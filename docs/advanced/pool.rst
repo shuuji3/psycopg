@@ -157,21 +157,31 @@ import 時にデータベースへの接続の開始を避け、アプリケー�
 
 プールがオープンすると、プールのバックグラウンドワーカーが要求された `!min_size` のコネクションを作成を開始し、コンストラクタ (または `!open()` メソッド) はすぐに返ります。これにより、ターゲットのデータベースが起動する前にプログラムを開始するための余裕が生まれます。しかし、アプリケーションが正しく設定されていなかったり、ネットワークがダウンしている場合、プログラムが起動できたとしても、コネクションをリクエストしているスレッドが `~ConnectionPool.connection()` のタイムアウトが切れた後にのみ `PoolTimeout` とともに失敗するということです。この動作が望ましくない場合 (周囲の状況が正しくない場合には他の何かがプログラムを再起動するため、プログラムが激しく早くクラッシュしてほしい場合)、プールの作成後に `~ConnectionPool.wait()` メソッドを呼ぶか、`!open(wait=True)` を呼ぶ必要があります。これらのメソッドはプールがフルになるまでブロックするか、もしプールが割り当てられた時間内に ready にならなかった場合は `PoolTimeout` 例外を発生させます。
 
-Connections life cycle
+..
+    Connections life cycle
+    ----------------------
+
+コネクションのライフサイクル
 ----------------------
 
-The pool background workers create connections according to the parameters
-`!conninfo`, `!kwargs`, and `!connection_class` passed to `ConnectionPool`
-constructor, invoking something like :samp:`{connection_class}({conninfo},
-**{kwargs})`. Once a connection is created it is also passed to the
-`!configure()` callback, if provided, after which it is put in the pool (or
-passed to a client requesting it, if someone is already knocking at the door).
+..
+    The pool background workers create connections according to the parameters
+    `!conninfo`, `!kwargs`, and `!connection_class` passed to `ConnectionPool`
+    constructor, invoking something like :samp:`{connection_class}({conninfo},
+    **{kwargs})`. Once a connection is created it is also passed to the
+    `!configure()` callback, if provided, after which it is put in the pool (or
+    passed to a client requesting it, if someone is already knocking at the door).
 
-If a connection expires (it passes `!max_lifetime`), or is returned to the pool
-in broken state, or is found closed by `~ConnectionPool.check()`), then the
-pool will dispose of it and will start a new connection attempt in the
-background.
+プールのバックグラウンド ワーカーは、`ConnectionPool` コンストラクタに渡された `!conninfo`、`!kwargs`、`!connection_class` のパラメータに従って、:samp:`{connection_class}({conninfo},
+**{kwargs})` のように実行することでコネクションを作成します。コネクションが一度作成されると、もし与えられた場合には `!configure()` コールバックにも渡され、その後、コネクションはプールに入れられます (または、もし誰かがすでにドアをノックしているなら、コネクションをリクエストしているクライアントに渡されます)。
 
+..
+    If a connection expires (it passes `!max_lifetime`), or is returned to the pool
+    in broken state, or is found closed by `~ConnectionPool.check()`), then the
+    pool will dispose of it and will start a new connection attempt in the
+    background.
+
+コネクションが期限切れになった場合 (`!max_lifetime` を超えた場合) や、壊れた状態でプールに戻された場合、`~ConnectionPool.check()` によってクローズしていることがわかった場合、プールはそのコネクションを破棄し、新しいコネクションの開始をバックグラウンドで試みます。
 
 Using connections from the pool
 -------------------------------
