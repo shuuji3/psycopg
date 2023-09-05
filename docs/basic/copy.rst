@@ -94,7 +94,7 @@ COPY ステートメントは、次のように `psycopg.sql` モジュールの
     -----------------------
 
 行ごとにデータを書き込む
------------------------
+------------------------
 
 ..
     Using a copy operation you can load data into the database from any Python
