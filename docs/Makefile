@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?=
+SPHINXOPTS    ?= -D language='ja'
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
@@ -14,7 +14,7 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) || true
 
 serve:
-	PSYCOPG_IMPL=python sphinx-autobuild --host=0.0.0.0 . _build/html/
+	PSYCOPG_IMPL=python sphinx-autobuild --host=0.0.0.0 $(SPHINXOPTS) . _build/html/
 
 container-build:
 	docker build .. -t psycopg-docs
