@@ -1,75 +1,35 @@
-Psycopg 3 -- PostgreSQL database adapter for Python
+Psycopg 3 ― PostgreSQL database adapter for Python documentation Japanese translation
 ===================================================
+
+.. image:: https://readthedocs.org/projects/psycopg3-ja/badge/?version=latest
+    :target: https://psycopg3-ja.readthedocs.io/ja/latest/?badge=latest
+    :alt: Documentation Status
 
 Psycopg 3 is a modern implementation of a PostgreSQL adapter for Python.
 
+This repository manages the Japanese translation of Psycopg 3 documentation, served by Read the Docs at https://psycopg3-ja.readthedocs.io.
 
-Installation
-------------
+You can read the original English documentation at https://www.psycopg.org/psycopg3/docs/, and can see the source git repository for the source code.
 
-Quick version::
+Local preview
+-------------
 
-    pip install --upgrade pip               # upgrade pip to at least 20.3
-    pip install "psycopg[binary,pool]"      # install binary dependencies
+**Prerequisites:**
 
-For further information about installation please check `the documentation`__.
+- Docker/OCI container engine
 
-.. __: https://www.psycopg.org/psycopg3/docs/basic/install.html
+.. code::
 
+    git clone https://github.com/shuuji3/psycopg3-docs-ja
+    cd psycopg3-docs-ja/docs/
 
-Hacking
--------
+    # build a container named `psycopg-docs`
+    make container-build
 
-In order to work on the Psycopg source code you need to have the ``libpq``
-PostgreSQL client library installed in the system. For instance, on Debian
-systems, you can obtain it by running::
+    # run the container to allow previewing at http://0.0.0.0:8000
+    make container-serve
 
-    sudo apt install libpq5
+Deployment
+----------
 
-After which you can clone this repository::
-
-    git clone https://github.com/psycopg/psycopg.git
-    cd psycopg
-
-Please note that the repository contains the source code of several Python
-packages: that's why you don't see a ``setup.py`` here. The packages may have
-different requirements:
-
-- The ``psycopg`` directory contains the pure python implementation of
-  ``psycopg``. The package has only a runtime dependency on the ``libpq``, the
-  PostgreSQL client library, which should be installed in your system.
-
-- The ``psycopg_c`` directory contains an optimization module written in
-  C/Cython. In order to build it you will need a few development tools: please
-  look at `Local installation`__ in the docs for the details.
-
-  .. __: https://www.psycopg.org/psycopg3/docs/basic/install.html#local-installation
-
-- The ``psycopg_pool`` directory contains the `connection pools`__
-  implementations. This is kept as a separate package to allow a different
-  release cycle.
-
-  .. __: https://www.psycopg.org/psycopg3/docs/advanced/pool.html
-
-You can create a local virtualenv and install there the packages `in
-development mode`__, together with their development and testing
-requirements::
-
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install -e "./psycopg[dev,test]"    # for the base Python package
-    pip install -e ./psycopg_pool           # for the connection pool
-    pip install ./psycopg_c                 # for the C speedup module
-
-.. __: https://pip.pypa.io/en/stable/topics/local-project-installs/#editable-installs
-
-Please add ``--config-settings editable_mode=strict`` to the ``pip install
--e`` above if you experience `editable mode broken`__.
-
-.. __: https://github.com/pypa/setuptools/issues/3557
-
-Now hack away! You can run the tests using::
-
-    psql -c 'create database psycopg_test'
-    export PSYCOPG_TEST_DSN="dbname=psycopg_test"
-    pytest
+Just commit and push to the ``i18n/ja`` branch on GitHub. The Read the Docs build CI will be triggered and automatically build the documentation within about 90 sec. and refresh the page.
