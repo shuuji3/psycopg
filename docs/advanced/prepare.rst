@@ -29,7 +29,7 @@ psycopg は自動的なシステムを使用して *prepare されたステー�
     further queries are executed, the least recently used ones are deallocated and
     the associated resources freed.
 
-コネクション上で `~Connection.prepare_threshold` より長い時間実行された場合、クエリは自動的に prepare されます。`!psycopg` は `~Connection.prepared_max` より多くののステートメントが計画されないことを保証します。追加のクエリが実行された場合、最も最近使われなかった (LRU) ものが割り当てから外され、関連するリソースが開放されます。
+コネクション上で `~Connection.prepare_threshold` より長い時間実行された場合、クエリは自動的に prepare されます。`!psycopg` は `~Connection.prepared_max` より多くのステートメントが計画されないことを保証します。追加のクエリが実行された場合、最も最近使われなかった (LRU) ものが割り当てから外され、関連するリソースが開放されます。
 
 ..
     Statement preparation can be controlled in several ways:
