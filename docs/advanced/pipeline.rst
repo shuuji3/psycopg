@@ -1,101 +1,194 @@
 .. currentmodule:: psycopg
 
+..
+    .. _pipeline-mode:
+
+    Pipeline mode support
+    =====================
+
 .. _pipeline-mode:
 
-Pipeline mode support
-=====================
+パイプライン モードのサポート
+=============================
 
 .. versionadded:: 3.1
 
-The *pipeline mode* allows PostgreSQL client applications to send a query
-without having to read the result of the previously sent query. Taking
-advantage of the pipeline mode, a client will wait less for the server, since
-multiple queries/results can be sent/received in a single network roundtrip.
-Pipeline mode can provide a significant performance boost to the application.
+..
+    The *pipeline mode* allows PostgreSQL client applications to send a query
+    without having to read the result of the previously sent query. Taking
+    advantage of the pipeline mode, a client will wait less for the server, since
+    multiple queries/results can be sent/received in a single network roundtrip.
+    Pipeline mode can provide a significant performance boost to the application.
 
-Pipeline mode is most useful when the server is distant, i.e., network latency
-(“ping time”) is high, and also when many small operations are being performed
-in rapid succession. There is usually less benefit in using pipelined commands
-when each query takes many multiples of the client/server round-trip time to
-execute. A 100-statement operation run on a server 300 ms round-trip-time away
-would take 30 seconds in network latency alone without pipelining; with
-pipelining it may spend as little as 0.3 s waiting for results from the
-server.
+*パイプライン モード* を使用すると、PostgreSQL クライアント アプリケーションが前回送信したクエリの結果を読み込む必要なく、クエリを送信できるようになります。パイプライン モードを活用することで、複数のクエリや結果が単一のネットワークラウンドトリップで送受信できるようになるため、クライアントがサーバーを待つ時間が短くなります。パイプライン モードにより、アプリケーションは大幅な性能向上が得られます。
 
-The server executes statements, and returns results, in the order the client
-sends them. The server will begin executing the commands in the pipeline
-immediately, not waiting for the end of the pipeline. Note that results are
-buffered on the server side; the server flushes that buffer when a
-:ref:`synchronization point <pipeline-sync>` is established.
+..
+    Pipeline mode is most useful when the server is distant, i.e., network latency
+    (“ping time”) is high, and also when many small operations are being performed
+    in rapid succession. There is usually less benefit in using pipelined commands
+    when each query takes many multiples of the client/server round-trip time to
+    execute. A 100-statement operation run on a server 300 ms round-trip-time away
+    would take 30 seconds in network latency alone without pipelining; with
+    pipelining it may spend as little as 0.3 s waiting for results from the
+    server.
+
+パイプライン モードが最も役に立つのは、サーバーが遠い場合、つまりネットワーク レイテンシ (「ping 時間」) が高い場合や、多数の小さな操作が立て続けに実行される場合です。各クエリの実行時間がクライアント/サーバー間のラウンドトリップの何倍もかかる場合には、通常、パイプライン コマンドを使っても得られる恩恵は小さくなります。300 ms のラウンドトリップ時間がかかるサーバー上で実行される 100 ステートメントの操作は、パイプラインがないとネットワーク レイテンシだけで 30 秒かかることになるでしょう。パイプラインを使用すると、サーバーからの結果を待つのにわずか 0.3 秒しかかからなくなる可能性があります。
+
+..
+    The server executes statements, and returns results, in the order the client
+    sends them. The server will begin executing the commands in the pipeline
+    immediately, not waiting for the end of the pipeline. Note that results are
+    buffered on the server side; the server flushes that buffer when a
+    :ref:`synchronization point <pipeline-sync>` is established.
+
+サーバーはステートメントを実行し、クライアントが送信した順序で結果を返します。サーバーはパイプラインの終わりを待たずに、パイプライン内ですぐにコマンドを実行し始めます。結果はサーバー側でバッファリングされ、サーバーは :ref:`同期ポイント <pipeline-sync>` が確立されたときにバッファをフラッシュすることに注意してください。
+
+..
+    .. seealso::
+
+        The PostgreSQL documentation about:
+
+        - `pipeline mode`__
+        - `extended query message flow`__
+
+        contains many details around when it is most useful to use the pipeline
+        mode and about errors management and interaction with transactions.
+
+        .. __: https://www.postgresql.org/docs/current/libpq-pipeline-mode.html
+        .. __: https://www.postgresql.org/docs/current/protocol-flow.html#PROTOCOL-FLOW-EXT-QUERY
 
 .. seealso::
 
-    The PostgreSQL documentation about:
+    以下の PostgreSQL のドキュメント
 
-    - `pipeline mode`__
-    - `extended query message flow`__
+    - `パイプライン モード`__
+    - `拡張クエリのメッセージ フロー`__
 
-    contains many details around when it is most useful to use the pipeline
-    mode and about errors management and interaction with transactions.
+    には、パイプライン モードが最も役に立つ場合と、エラー管理やトランザクションとのやり取りについて、多数の詳細が説明されています。
 
     .. __: https://www.postgresql.org/docs/current/libpq-pipeline-mode.html
     .. __: https://www.postgresql.org/docs/current/protocol-flow.html#PROTOCOL-FLOW-EXT-QUERY
 
 
-Client-server messages flow
----------------------------
+..
+    Client-server messages flow
+    ---------------------------
 
-In order to understand better how the pipeline mode works, we should take a
-closer look at the `PostgreSQL client-server message flow`__.
+クライアント-サーバー間のメッセージ フロー
+------------------------------------------
 
-During normal querying, each statement is transmitted by the client to the
-server as a stream of request messages, terminating with a **Sync** message to
-tell it that it should process the messages sent so far. The server will
-execute the statement and describe the results back as a stream of messages,
-terminating with a **ReadyForQuery**, telling the client that it may now send a
-new query.
+..
+    In order to understand better how the pipeline mode works, we should take a
+    closer look at the `PostgreSQL client-server message flow`__.
 
-For example, the statement (returning no result):
+パイプライン モードの仕組みについてよく理解するためには、`PostgreSQL のクライアント-サーバー間のメッセージ フロー`__ を詳しく見る必要があります。
+
+..
+    During normal querying, each statement is transmitted by the client to the
+    server as a stream of request messages, terminating with a **Sync** message to
+    tell it that it should process the messages sent so far. The server will
+    execute the statement and describe the results back as a stream of messages,
+    terminating with a **ReadyForQuery**, telling the client that it may now send a
+    new query.
+
+通常のクエリの間、各ステートメントはクライアントからサーバーにリクエスト メッセージのストリームとして送られ、サーバーに対してこれまで送ったメッセージを処理するべきことを伝えるために **Sync** メッセージで終端されます。サーバーはステートメントを実行し、クライアントに対して結果をメッセージのストリームとして説明 (describe) して返し、クライアントに対してクライアントが新しいクエリを送っても良いということを伝えるために **ReadyForQuery** で終端します。
+
+..
+    For example, the statement (returning no result):
+
+たとえば、次の (何も結果を返さない) ステートメントは、
 
 .. code:: python
 
     conn.execute("INSERT INTO mytable (data) VALUES (%s)", ["hello"])
 
-results in the following two groups of messages:
+..
+    results in the following two groups of messages:
+
+結果として、以下の2つのメッセージ グループになります。
+
+..
+    .. table::
+        :align: left
+
+        +---------------+-----------------------------------------------------------+
+        | Direction     | Message                                                   |
+        +===============+===========================================================+
+        | Python        | - Parse ``INSERT INTO ... (VALUE $1)`` (skipped if        |
+        |               |   :ref:`the statement is prepared <prepared-statements>`) |
+        | |>|           | - Bind ``'hello'``                                        |
+        |               | - Describe                                                |
+        | PostgreSQL    | - Execute                                                 |
+        |               | - Sync                                                    |
+        +---------------+-----------------------------------------------------------+
+        | PostgreSQL    | - ParseComplete                                           |
+        |               | - BindComplete                                            |
+        | |<|           | - NoData                                                  |
+        |               | - CommandComplete ``INSERT 0 1``                          |
+        | Python        | - ReadyForQuery                                           |
+        +---------------+-----------------------------------------------------------+
 
 .. table::
     :align: left
 
-    +---------------+-----------------------------------------------------------+
-    | Direction     | Message                                                   |
-    +===============+===========================================================+
-    | Python        | - Parse ``INSERT INTO ... (VALUE $1)`` (skipped if        |
-    |               |   :ref:`the statement is prepared <prepared-statements>`) |
-    | |>|           | - Bind ``'hello'``                                        |
-    |               | - Describe                                                |
-    | PostgreSQL    | - Execute                                                 |
-    |               | - Sync                                                    |
-    +---------------+-----------------------------------------------------------+
-    | PostgreSQL    | - ParseComplete                                           |
-    |               | - BindComplete                                            |
-    | |<|           | - NoData                                                  |
-    |               | - CommandComplete ``INSERT 0 1``                          |
-    | Python        | - ReadyForQuery                                           |
-    +---------------+-----------------------------------------------------------+
+    +---------------+-------------------------------------------------------------------+
+    | 方向          | メッセージ                                                        |
+    +===============+===================================================================+
+    | Python        | - Parse ``INSERT INTO ... (VALUE $1)`` (                          |
+    |               |   :ref:`ステートメントが prepare されている <prepared-statements>`|
+    |               |   場合はスキップ)                                                 |
+    | |>|           | - Bind ``'hello'``                                                |
+    |               | - Describe                                                        |
+    | PostgreSQL    | - Execute                                                         |
+    |               | - Sync                                                            |
+    +---------------+-------------------------------------------------------------------+
+    | PostgreSQL    | - ParseComplete                                                   |
+    |               | - BindComplete                                                    |
+    | |<|           | - NoData                                                          |
+    |               | - CommandComplete ``INSERT 0 1``                                  |
+    | Python        | - ReadyForQuery                                                   |
+    +---------------+-------------------------------------------------------------------+
 
-and the query:
+..
+    and the query:
+
+そして、次のクエリは、
 
 .. code:: python
 
     conn.execute("SELECT data FROM mytable WHERE id = %s", [1])
 
-results in the two groups of messages:
+..
+    results in the two groups of messages:
+
+結果として、以下の2つのメッセージ グループになります。
+
+..
+    .. table::
+        :align: left
+
+        +---------------+-----------------------------------------------------------+
+        | Direction     | Message                                                   |
+        +===============+===========================================================+
+        | Python        | - Parse ``SELECT data FROM mytable WHERE id = $1``        |
+        |               | - Bind ``1``                                              |
+        | |>|           | - Describe                                                |
+        |               | - Execute                                                 |
+        | PostgreSQL    | - Sync                                                    |
+        +---------------+-----------------------------------------------------------+
+        | PostgreSQL    | - ParseComplete                                           |
+        |               | - BindComplete                                            |
+        | |<|           | - RowDescription    ``data``                              |
+        |               | - DataRow           ``hello``                             |
+        | Python        | - CommandComplete ``SELECT 1``                            |
+        |               | - ReadyForQuery                                           |
+        +---------------+-----------------------------------------------------------+
 
 .. table::
     :align: left
 
     +---------------+-----------------------------------------------------------+
-    | Direction     | Message                                                   |
+    | 方向          | メッセージ                                                |
     +===============+===========================================================+
     | Python        | - Parse ``SELECT data FROM mytable WHERE id = $1``        |
     |               | - Bind ``1``                                              |
@@ -111,12 +204,18 @@ results in the two groups of messages:
     |               | - ReadyForQuery                                           |
     +---------------+-----------------------------------------------------------+
 
-The two statements, sent consecutively, pay the communication overhead four
-times, once per leg.
+..
+    The two statements, sent consecutively, pay the communication overhead four
+    times, once per leg.
 
-The pipeline mode allows the client to combine several operations in longer
-streams of messages to the server, then to receive more than one response in a
-single batch. If we execute the two operations above in a pipeline:
+2つのステートメントは連続的に送信されるため、1回ごとに通信のオーバーヘッドが4回も課されてしまいます。
+
+..
+    The pipeline mode allows the client to combine several operations in longer
+    streams of messages to the server, then to receive more than one response in a
+    single batch. If we execute the two operations above in a pipeline:
+
+パイプラインモードを使うと、クライアントは複数の操作を、サーバーへのメッセージのより長いストリームとしてまとめられるようになり、1つ以上のレスポンスを1つのバッチにまとまった1つのレスポンスとして受け取れるようになります。上記の2つの操作を次のようにパイプラインで実行した場合、
 
 .. code:: python
 
@@ -124,13 +223,16 @@ single batch. If we execute the two operations above in a pipeline:
         conn.execute("INSERT INTO mytable (data) VALUES (%s)", ["hello"])
         conn.execute("SELECT data FROM mytable WHERE id = %s", [1])
 
-they will result in a single roundtrip between the client and the server:
+..
+    they will result in a single roundtrip between the client and the server:
+
+結果として、クライアントとサーバー間で1つのラウンドトリップしかかからなくなるでしょう。
 
 .. table::
     :align: left
 
     +---------------+-----------------------------------------------------------+
-    | Direction     | Message                                                   |
+    | 方向          | メッセージ                                                |
     +===============+===========================================================+
     | Python        | - Parse ``INSERT INTO ... (VALUE $1)``                    |
     |               | - Bind ``'hello'``                                        |
@@ -140,7 +242,7 @@ they will result in a single roundtrip between the client and the server:
     |               | - Bind ``1``                                              |
     |               | - Describe                                                |
     |               | - Execute                                                 |
-    |               | - Sync (sent only once)                                   |
+    |               | - Sync (1回だけ送る)                                      |
     +---------------+-----------------------------------------------------------+
     | PostgreSQL    | - ParseComplete                                           |
     |               | - BindComplete                                            |
@@ -151,7 +253,7 @@ they will result in a single roundtrip between the client and the server:
     |               | - RowDescription    ``data``                              |
     |               | - DataRow           ``hello``                             |
     |               | - CommandComplete ``SELECT 1``                            |
-    |               | - ReadyForQuery (sent only once)                          |
+    |               | - ReadyForQuery (1回だけ送る)                             |
     +---------------+-----------------------------------------------------------+
 
 .. |<| unicode:: U+25C0
