@@ -1,6 +1,10 @@
 .. _psycopg.rows:
 
-`rows` -- row factory implementations
+..
+    `rows` -- row factory implementations
+    =====================================
+
+`rows` -- 行ファクトリの実装
 =====================================
 
 .. module:: psycopg.rows

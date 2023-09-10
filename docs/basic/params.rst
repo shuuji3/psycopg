@@ -3,10 +3,16 @@
 .. index::
     pair: Query; Parameters
 
+..
+    .. _query-parameters:
+
+    Passing parameters to SQL queries
+    =================================
+
 .. _query-parameters:
 
-Passing parameters to SQL queries
-=================================
+SQL クエリにパラメータを渡す
+============================
 
 Most of the times, writing a program you will have to mix bits of SQL
 statements with values provided by the rest of the program:

@@ -4,8 +4,12 @@
     single: Release notes
     single: News
 
-``psycopg_pool`` release notes
-==============================
+..
+    ``psycopg_pool`` release notes
+    ==============================
+
+``psycopg_pool`` リリース ノート
+================================
 
 Future releases
 ---------------

@@ -3,9 +3,15 @@
 .. index::
     single: Cursor
 
+..
+    .. _cursor-types:
+
+    Cursor types
+    ============
+
 .. _cursor-types:
 
-Cursor types
+カーソルの型
 ============
 
 Psycopg can manage kinds of "cursors" which differ in where the state of a

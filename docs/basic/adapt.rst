@@ -5,9 +5,15 @@
     pair: Objects; Adaptation
     single: Data types; Adaptation
 
+..
+    .. _types-adaptation:
+
+    Adapting basic Python types
+    ===========================
+
 .. _types-adaptation:
 
-Adapting basic Python types
+Python の基本型に適応する
 ===========================
 
 Many standard Python types are adapted into SQL and returned as Python
@@ -377,7 +383,7 @@ list may contain `!None` elements).
         psycopg.errors.SyntaxError: syntax error at or near "$1"
         LINE 1: SELECT * FROM mytable WHERE id IN $1
                                                   ^
-    
+
     What you want to do instead is to use the `'= ANY()' expression`__ and pass
     the values as a list (not a tuple).
 

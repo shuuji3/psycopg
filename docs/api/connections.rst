@@ -1,6 +1,10 @@
 .. currentmodule:: psycopg
 
-Connection classes
+..
+    Connection classes
+    ==================
+
+Connection クラス
 ==================
 
 The `Connection` and `AsyncConnection` classes are the main wrappers for a

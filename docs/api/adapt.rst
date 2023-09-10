@@ -1,4 +1,8 @@
-`adapt` -- Types adaptation
+..
+    `adapt` -- Types adaptation
+    ===========================
+
+`adapt` -- 型の適応
 ===========================
 
 .. module:: psycopg.adapt

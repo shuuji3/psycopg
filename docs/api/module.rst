@@ -1,4 +1,9 @@
-The `!psycopg` module
+
+..
+    The `!psycopg` module
+    =====================
+
+`!psycopg` モジュール
 =====================
 
 Psycopg implements the `Python Database DB API 2.0 specification`__. As such

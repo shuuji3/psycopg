@@ -1,4 +1,8 @@
-`!psycopg_pool` -- Connection pool implementations
+..
+    `!psycopg_pool` -- Connection pool implementations
+    ==================================================
+
+`!psycopg_pool` -- コネクション プールの実装
 ==================================================
 
 .. index::

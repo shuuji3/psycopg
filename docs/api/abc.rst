@@ -1,4 +1,8 @@
-`!abc` -- Psycopg abstract classes
+..
+    `!abc` -- Psycopg abstract classes
+    ==================================
+
+`!abc` -- Psycopg の抽象クラス
 ==================================
 
 The module exposes Psycopg definitions which can be used for static type

@@ -1,6 +1,10 @@
 .. _psycopg.conninfo:
 
-`conninfo` -- manipulate connection strings
+..
+    `conninfo` -- manipulate connection strings
+    ===========================================
+
+`conninfo` -- コネクション文字列の操作
 ===========================================
 
 This module contains a few utility functions to manipulate database

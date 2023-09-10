@@ -1,9 +1,14 @@
 .. currentmodule:: psycopg
+..
+    .. _module-usage:
+
+    Basic module usage
+    ==================
 
 .. _module-usage:
 
-Basic module usage
-==================
+モジュールの基本的な使用方法
+============================
 
 The basic Psycopg usage is common to all the database adapters implementing
 the `DB-API`__ protocol. Other database adapters, such as the builtin

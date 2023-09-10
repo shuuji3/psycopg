@@ -1,5 +1,9 @@
-`_dns` -- DNS resolution utilities
-==================================
+..
+    `_dns` -- DNS resolution utilities
+    =================================
+
+`_dns` -- DNS 解決ユーティリティ
+=================================
 
 .. module:: psycopg._dns
 

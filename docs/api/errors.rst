@@ -1,4 +1,8 @@
-`errors` -- Package exceptions
+..
+    `errors` -- Package exceptions
+    ==============================
+
+`errors` -- パッケージの例外
 ==============================
 
 .. module:: psycopg.errors

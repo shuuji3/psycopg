@@ -2,10 +2,16 @@
 
 .. index:: row factories
 
+..
+    .. _row-factories:
+
+    Row factories
+    =============
+
 .. _row-factories:
 
-Row factories
-=============
+行ファクトリ
+============
 
 Cursor's `fetch*` methods, by default, return the records received from the
 database as tuples. This can be changed to better suit the needs of the

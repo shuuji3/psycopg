@@ -1,7 +1,11 @@
 .. currentmodule:: psycopg
 
-COPY-related objects
-====================
+..
+    COPY-related objects
+    ====================
+
+COPY 関連のオブジェクト
+=======================
 
 The main objects (`Copy`, `AsyncCopy`) present the main interface to exchange
 data during a COPY operations. These objects are normally obtained by the

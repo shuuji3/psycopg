@@ -1,5 +1,9 @@
-`crdb` -- CockroachDB support
-=============================
+..
+    `crdb` -- CockroachDB support
+    =============================
+
+`crdb` -- CockroachDB サポート
+==============================
 
 .. module:: psycopg.crdb
 
@@ -100,7 +104,7 @@ CockroachDB-specific objects
 
     The default adapters map establishing how Python and CockroachDB types are
     converted into each other.
- 
+
     The map is used as a template when new connections are created, using
     `psycopg.crdb.connect()` (similarly to the way `psycopg.adapters` is used
     as template for new PostgreSQL connections).

@@ -1,7 +1,11 @@
 .. _psycopg.pq:
 
-`pq` -- libpq wrapper module
-============================
+..
+    `pq` -- libpq wrapper module
+    ============================
+
+`pq` -- libpq ラッパー モジュール
+=================================
 
 .. index::
     single: libpq

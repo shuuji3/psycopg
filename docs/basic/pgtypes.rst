@@ -5,10 +5,16 @@
     pair: Objects; Adaptation
     single: Data types; Adaptation
 
+..
+    .. _extra-adaptation:
+
+    Adapting other PostgreSQL types
+    ===============================
+
 .. _extra-adaptation:
 
-Adapting other PostgreSQL types
-===============================
+PostgreSQL 他の型に適応する
+===========================
 
 PostgreSQL offers other data types which don't map to native Python types.
 Psycopg offers wrappers and conversion functions to allow their use.

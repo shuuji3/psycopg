@@ -2,7 +2,11 @@
 
 .. _psycopg.types:
 
-`!types` -- Types information and adapters
+..
+    `!types` -- Types information and adapters
+    ==========================================
+
+`!types` -- 型情報とアダプター
 ==========================================
 
 .. module:: psycopg.types

@@ -1,6 +1,10 @@
 .. currentmodule:: psycopg
 
-Cursor classes
+..
+    Cursor classes
+    ==============
+
+Cursor クラス
 ==============
 
 The `Cursor` and `AsyncCursor` classes are the main objects to send commands
@@ -528,7 +532,7 @@ semantic with an `!async` interface. The main interface is described in
 
 .. autoclass:: AsyncRawCursor
 
-    This class is the `!async` equivalent of `RawCursor`. The differences 
+    This class is the `!async` equivalent of `RawCursor`. The differences
     w.r.t. the sync counterpart are the same described in `AsyncCursor`.
 
     .. versionadded:: 3.2

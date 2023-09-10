@@ -1,4 +1,8 @@
-`sql` -- SQL string composition
+..
+    `sql` -- SQL string composition
+    ===============================
+
+`sql` -- SQL 文字列の作成
 ===============================
 
 .. index::

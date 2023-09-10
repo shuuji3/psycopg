@@ -1,6 +1,12 @@
+..
+    .. _installation:
+
+    Installation
+    ============
+
 .. _installation:
 
-Installation
+インストール
 ============
 
 In short, if you use a :ref:`supported system<supported-systems>`::

@@ -1,7 +1,11 @@
 .. currentmodule:: psycopg
 
-Other top-level objects
-=======================
+..
+    Other top-level objects
+    =======================
+
+その他のトップレベル オブジェクト
+=================================
 
 Connection information
 ----------------------
