@@ -261,19 +261,30 @@
 
 .. __: https://www.postgresql.org/docs/current/protocol-flow.html
 
+..
+    .. _pipeline-usage:
+
+    Pipeline mode usage
+    -------------------
 
 .. _pipeline-usage:
 
-Pipeline mode usage
--------------------
+パイプライン モードを使用する
+-----------------------------
 
-Psycopg supports the pipeline mode via the `Connection.pipeline()` method. The
-method is a context manager: entering the ``with`` block yields a `Pipeline`
-object. At the end of block, the connection resumes the normal operation mode.
+..
+    Psycopg supports the pipeline mode via the `Connection.pipeline()` method. The
+    method is a context manager: entering the ``with`` block yields a `Pipeline`
+    object. At the end of block, the connection resumes the normal operation mode.
 
-Within the pipeline block, you can use normally one or more cursors to execute
-several operations, using `Connection.execute()`, `Cursor.execute()` and
-`~Cursor.executemany()`.
+psycopg は `Connection.pipeline()` メソッド経由でパイプライン モードをサポートしています。このメソッドはコンテクスト マネージャです。``with`` ブロックに入ると、`Pipeline` オブジェクトが yield されます。ブロックの終わりで、コネクションは通常の操作モードを継続します。
+
+..
+    Within the pipeline block, you can use normally one or more cursors to execute
+    several operations, using `Connection.execute()`, `Cursor.execute()` and
+    `~Cursor.executemany()`.
+
+パイプライン ブロック内では、1つ以上のカーソルで `Connection.execute()`、`Cursor.execute()`、`~Cursor.executemany()` を普通に使用して、複数の操作を実行できます。
 
 .. code:: python
 
@@ -285,58 +296,102 @@ several operations, using `Connection.execute()`, `Cursor.execute()` and
     ...             "INSERT INTO elsewhere VALUES (%s)",
     ...             [("one",), ("two",), ("four",)])
 
-Unlike in normal mode, Psycopg will not wait for the server to receive the
-result of each query; the client will receive results in batches when the
-server flushes it output buffer. You can receive more than a single result
-by using more than one cursor in the same pipeline.
+..
+    Unlike in normal mode, Psycopg will not wait for the server to receive the
+    result of each query; the client will receive results in batches when the
+    server flushes it output buffer. You can receive more than a single result
+    by using more than one cursor in the same pipeline.
 
-If any statement encounters an error, the server aborts the current
-transaction and will not execute any subsequent command in the queue until the
-next :ref:`synchronization point <pipeline-sync>`; a `~errors.PipelineAborted`
-exception is raised for each such command. Query processing resumes after the
-synchronization point.
+ノーマル モードとは違い、psycopg はサーバーが各クエリの結果を受信するのを待ちません。クライアントは、サーバーが結果を出力バッファにフラッシュしたときにバッチで受信します。同じパイプライン内の2つ以上のカーソルを使用することで、2つ以上の結果を受信できます。
+
+..
+    If any statement encounters an error, the server aborts the current
+    transaction and will not execute any subsequent command in the queue until the
+    next :ref:`synchronization point <pipeline-sync>`; a `~errors.PipelineAborted`
+    exception is raised for each such command. Query processing resumes after the
+    synchronization point.
+
+何らかのステートメントでエラーが発生した場合、サーバーは現在のトランザクションを中断し、キューにある後続のコマンドは、次の :ref:`同期ポイント <pipeline-sync>` まで実行しません。そのようなコマンドそれぞれに対して `~errors.PipelineAborted` 例外が発生します。クエリ処理は同期ポイントの後に再開します。
+
+..
+    .. warning::
+
+        Certain features are not available in pipeline mode, including:
+
+        - COPY is not supported in pipeline mode by PostgreSQL.
+        - `Cursor.stream()` doesn't make sense in pipeline mode (its job is the
+          opposite of batching!)
+        - `ServerCursor` are currently not implemented in pipeline mode.
 
 .. warning::
 
-    Certain features are not available in pipeline mode, including:
+    特定の機能はパイプラインでは利用できません。これには次の機能が含まれます。
 
-    - COPY is not supported in pipeline mode by PostgreSQL.
-    - `Cursor.stream()` doesn't make sense in pipeline mode (its job is the
-      opposite of batching!)
-    - `ServerCursor` are currently not implemented in pipeline mode.
+    - COPY は PostgreSQL のパイプライン モードではサポートされていません。
+    - `Cursor.stream()` はパイプライン モードでは意味がありません。(この機能はバッチとは逆です！)
+    - `ServerCursor` は現在パイプライン モードでは実装されていません。
+
+..
+    .. note::
+
+        Starting from Psycopg 3.1, `~Cursor.executemany()` makes use internally of
+        the pipeline mode; as a consequence there is no need to handle a pipeline
+        block just to call `!executemany()` once.
 
 .. note::
 
-    Starting from Psycopg 3.1, `~Cursor.executemany()` makes use internally of
-    the pipeline mode; as a consequence there is no need to handle a pipeline
-    block just to call `!executemany()` once.
+    psycopg 3.1 以降、`~Cursor.executemany()` 内部でパイプライン モードを使用するようになります。その結果、`!executemany()` を1回だけ呼び出すためにパイプライン ブロックを扱う必要はありません。
 
+..
+    .. _pipeline-sync:
+
+    Synchronization points
+    ----------------------
 
 .. _pipeline-sync:
 
-Synchronization points
-----------------------
+同期ポイント
+------------
 
-Flushing query results to the client can happen either when a synchronization
-point is established by Psycopg:
+..
+    Flushing query results to the client can happen either when a synchronization
+    point is established by Psycopg:
 
-- using the `Pipeline.sync()` method;
-- on `Connection.commit()` or `~Connection.rollback()`;
-- at the end of a `!Pipeline` block;
-- possibly when opening a nested `!Pipeline` block;
-- using a fetch method such as `Cursor.fetchone()` (which only flushes the
-  query but doesn't issue a Sync and doesn't reset a pipeline state error).
+クエリ結果のクライアントへのフラッシュは、同期ポイントが psycopg により確立される以下のようなタイミングで行われる可能性があります。
 
-The server might perform a flush on its own initiative, for instance when the
-output buffer is full.
+..
+    - using the `Pipeline.sync()` method;
+    - on `Connection.commit()` or `~Connection.rollback()`;
+    - at the end of a `!Pipeline` block;
+    - possibly when opening a nested `!Pipeline` block;
+    - using a fetch method such as `Cursor.fetchone()` (which only flushes the
+      query but doesn't issue a Sync and doesn't reset a pipeline state error).
 
-Note that, even in :ref:`autocommit <autocommit>`, the server wraps the
-statements sent in pipeline mode in an implicit transaction, which will be
-only committed when the Sync is received. As such, a failure in a group of
-statements will probably invalidate the effect of statements executed after
-the previous Sync, and will propagate to the following Sync.
+- `Pipeline.sync()` メソッドの使用時
+- `Connection.commit()` または `~Connection.rollback()`
+- `!Pipeline` ブロックの最後
+- 場合によっては、ネストした `!Pipeline` ブロックのオープン時
+- `Cursor.fetchone()` などの fetch メソッドの使用時 (クエリだけをフラッシュしますが、Sync は発行せず、パイプラインのステート エラーもリセットしません)
 
-For example, in the following block:
+..
+    The server might perform a flush on its own initiative, for instance when the
+    output buffer is full.
+
+サーバーは、たとえば出力バッファがフルの場合など、自身の裁量でフラッシュを実行する可能性があります。
+
+..
+    Note that, even in :ref:`autocommit <autocommit>`, the server wraps the
+    statements sent in pipeline mode in an implicit transaction, which will be
+    only committed when the Sync is received. As such, a failure in a group of
+    statements will probably invalidate the effect of statements executed after
+    the previous Sync, and will propagate to the following Sync.
+
+たとえ :ref:`autocommit <autocommit>` 中であっても、サーバーはパイプライン モードで送信されるステートメントを、暗黙のトランザクション内にラッピングすることに注意してください。これは、Sync を受信したときにしかコミットされません。そのため、ステートメントのグループ内で失敗すると、おそらく前回の Sync より後に実行されたステートメントの効果が無効化され、それが後続の Sync に伝搬します。
+
+..
+    For example, in the following block:
+
+たとえば、以下のブロック内では、
 
 .. code:: python
 
@@ -351,9 +406,12 @@ For example, in the following block:
     ...             pass
     ...         cur.execute("INSERT INTO mytable (data) VALUES (%s)", ["four"])
 
-there will be an error in the block, ``relation "no_such_table" does not
-exist`` caused by the insert ``two``, but probably raised by the `!sync()`
-call. At at the end of the block, the table will contain:
+..
+    there will be an error in the block, ``relation "no_such_table" does not
+    exist`` caused by the insert ``two``, but probably raised by the `!sync()`
+    call. At at the end of the block, the table will contain:
+
+ブロック内で、``two`` の insert が原因の ``relation "no_such_table" does not exist`` というエラーが、しかしおそらく `!sync()` によって発生するでしょう。ブロックの終わりでは、テーブルには以下のデータがあることになります。
 
 .. code:: text
 
@@ -365,32 +423,51 @@ call. At at the end of the block, the table will contain:
     +----+------+
     (1 row)
 
-because:
+..
+    because:
 
-- the value 1 of the sequence is consumed by the statement ``one``, but
-  the record discarded because of the error in the same implicit transaction;
-- the statement ``three`` is not executed because the pipeline is aborted (so
-  it doesn't consume a sequence item);
-- the statement ``four`` is executed with
-  success after the Sync has terminated the failed transaction.
+理由は次のとおりです。
+
+..
+    - the value 1 of the sequence is consumed by the statement ``one``, but
+      the record discarded because of the error in the same implicit transaction;
+    - the statement ``three`` is not executed because the pipeline is aborted (so
+      it doesn't consume a sequence item);
+    - the statement ``four`` is executed with
+      success after the Sync has terminated the failed transaction.
+
+- シーケンス値 1 はステートメント ``one`` で消費されるが、レコードは同じ暗黙のトランザクション内でのエラーのため破棄された。
+- パイプラインが中断されるため、ステートメント ``three`` は実行されない (したがって、シーケンスのアイテムを消費しない)。
+- ステートメント ``four`` は、Sync が失敗したトランザクションを終了させた後、成功裏に実行される。
+
+..
+    .. warning::
+
+        The exact Python statement where an exception caused by a server error is
+        raised is somewhat arbitrary: it depends on when the server flushes its
+        buffered result.
+
+        If you want to make sure that a group of statements is applied atomically
+        by the server, do make use of transaction methods such as
+        `~Connection.commit()` or `~Connection.transaction()`: these methods will
+        also sync the pipeline and raise an exception if there was any error in
+        the commands executed so far.
 
 .. warning::
 
-    The exact Python statement where an exception caused by a server error is
-    raised is somewhat arbitrary: it depends on when the server flushes its
-    buffered result.
+    サーバーエラーによって例外が発生する正確な Python ステートメントは、いくぶん不確定です。サーバーがバッファされた結果をどのタイミングでフラッシュするかによって異なるためです。
 
-    If you want to make sure that a group of statements is applied atomically
-    by the server, do make use of transaction methods such as
-    `~Connection.commit()` or `~Connection.transaction()`: these methods will
-    also sync the pipeline and raise an exception if there was any error in
-    the commands executed so far.
+    ステートメントのグループがサーバーによってアトミックに適用されることを保証したい場合は、`~Connection.commit()` or `~Connection.transaction()` などのトランザクション メソッドを活用してください。これらのメソッドもパイプラインを同期して、それまでに実行されたコマンドにエラーがあった場合に例外を発生させます。
 
+..
+    The fine prints
+    ---------------
 
-The fine prints
----------------
+注意事項
+--------
 
-.. warning::
+..
+    .. warning::
 
     The Pipeline mode is an experimental feature.
 
@@ -402,7 +479,18 @@ The fine prints
     bugs and shortcomings forcing us to change the current interface or
     behaviour.
 
-The pipeline mode is available on any currently supported PostgreSQL version,
-but, in order to make use of it, the client must use a libpq from PostgreSQL
-14 or higher. You can use `Pipeline.is_supported()` to make sure your client
-has the right library.
+.. warning::
+
+    パイプライン モードは実験的な機能です。
+
+    パイプライン モードの動作、特に、エラー コンディションや並行性の周辺は、通常のリクエスト-レスポンスメッセージのパターンほど多くは探索されておらず、その非同期の性質により、本質的により複雑になります。
+
+    より経験を積んでフィードバックをもらうにつれて (フィードバックは歓迎です)、バグや欠点を発見し、現在のインターフェイスや動作を変更せざるを得なくなる可能性があります。
+
+..
+    The pipeline mode is available on any currently supported PostgreSQL version,
+    but, in order to make use of it, the client must use a libpq from PostgreSQL
+    14 or higher. You can use `Pipeline.is_supported()` to make sure your client
+    has the right library.
+
+パイプライン モードは現在サポートされている PostgreSQL の全てのバージョンで利用可能ですが、利用するには、クライアントが PostgreSQL 14 以上の libpg を使用する必要があります。`Pipeline.is_supported()` を使用すると、クライアントが正しいライブラリを持っていることを確認できます。
