@@ -14,26 +14,41 @@
 `!psycopg2` との違い
 ====================
 
-Psycopg 3 uses the common DBAPI structure of many other database adapters and
-tries to behave as close as possible to `!psycopg2`. There are however a few
-differences to be aware of.
+..
+    Psycopg 3 uses the common DBAPI structure of many other database adapters and
+    tries to behave as close as possible to `!psycopg2`. There are however a few
+    differences to be aware of.
+
+Psycopg 3 は、他の多くのデータベースアダプターと共通の DBAPI 構造を使用しており、できるだけ `!psycopg2` に近い動作になるように努めています。しかし、注意するべき異なる点がいくつかあります。
+
+..
+    .. tip::
+        Most of the times, the workarounds suggested here will work with both
+        Psycopg 2 and 3, which could be useful if you are porting a program or
+        writing a program that should work with both Psycopg 2 and 3.
 
 .. tip::
-    Most of the times, the workarounds suggested here will work with both
-    Psycopg 2 and 3, which could be useful if you are porting a program or
-    writing a program that should work with both Psycopg 2 and 3.
-
+    ほとんどの場合、ここで提案しているワークアラウンドは Psycopg 2 と 3 の両方で動作します。これは Psycopg 2 と 3 の両方で動作する必要があるプログラムをポーティング・作成している場合に役に立つかもしれません。
 
 .. _server-side-binding:
 
-Server-side binding
--------------------
+..
+    Server-side binding
+    -------------------
 
-Psycopg 3 sends the query and the parameters to the server separately, instead
-of merging them on the client side. Server-side binding works for normal
-:sql:`SELECT` and data manipulation statements (:sql:`INSERT`, :sql:`UPDATE`,
-:sql:`DELETE`), but it doesn't work with many other statements. For instance,
-it doesn't work with :sql:`SET` or with :sql:`NOTIFY`::
+サーバーサイド バインディング
+------------------------------
+
+..
+    Psycopg 3 sends the query and the parameters to the server separately, instead
+    of merging them on the client side. Server-side binding works for normal
+    :sql:`SELECT` and data manipulation statements (:sql:`INSERT`, :sql:`UPDATE`,
+    :sql:`DELETE`), but it doesn't work with many other statements. For instance,
+    it doesn't work with :sql:`SET` or with :sql:`NOTIFY`::
+
+Psycopg 3 は、クエリとパラメータをクライアントサイドでマージするのではなく、サーバーに別々に送信します。サーバーサイド バインディングは 通常の :sql:`SELECT` とデータ操作のステートメント (:sql:`INSERT`、:sql:`UPDATE`、:sql:`DELETE`) に対して動作しますが、他の多くのステートメントでは動作しません。たとえば、次のように :sql:`SET` や :sql:`NOTIFY` では動作しません。
+
+.. code:: python
 
     >>> conn.execute("SET TimeZone TO %s", ["UTC"])
     Traceback (most recent call last):
@@ -49,7 +64,12 @@ it doesn't work with :sql:`SET` or with :sql:`NOTIFY`::
     LINE 1: NOTIFY $1, $2
                    ^
 
-and with any data definition statement::
+..
+    and with any data definition statement::
+
+そして、次のようなデータ定義のステートメントでも動作しません。
+
+.. code:: python
 
     >>> conn.execute("CREATE TABLE foo (id int DEFAULT %s)", [42])
     Traceback (most recent call last):
@@ -58,9 +78,14 @@ and with any data definition statement::
     LINE 1: CREATE TABLE foo (id int DEFAULT $1)
                                              ^
 
-Sometimes, PostgreSQL offers an alternative: for instance the `set_config()`__
-function can be used instead of the :sql:`SET` statement, the `pg_notify()`__
-function can be used instead of :sql:`NOTIFY`::
+..
+    Sometimes, PostgreSQL offers an alternative: for instance the `set_config()`__
+    function can be used instead of the :sql:`SET` statement, the `pg_notify()`__
+    function can be used instead of :sql:`NOTIFY`::
+
+ときには、PostgreSQL が代替手段を提供してくれることもあります。たとえば、:sql:`SET` ステートメントの代わりに `set_config()`__ 関数が、:sql:`NOTIFY` の代わりに `pg_notify()`__ 関数がそれぞれ利用できます。
+
+.. code:: python
 
     >>> conn.execute("SELECT set_config('TimeZone', %s, false)", ["UTC"])
 
@@ -72,40 +97,68 @@ function can be used instead of :sql:`NOTIFY`::
 .. __: https://www.postgresql.org/docs/current/sql-notify.html
     #id-1.9.3.157.7.5
 
-If this is not possible, you must merge the query and the parameter on the
-client side. You can do so using the `psycopg.sql` objects::
+..
+    If this is not possible, you must merge the query and the parameter on the
+    client side. You can do so using the `psycopg.sql` objects::
+
+これが不可能な場合は、クエリとパラメータをクライアントサイドでマージしなければなりません。次のように `psycopg.sql` オブジェクトを使うとマージが行なえます。
+
+.. code:: python
 
     >>> from psycopg import sql
 
     >>> cur.execute(sql.SQL("CREATE TABLE foo (id int DEFAULT {})").format(42))
 
-or creating a :ref:`client-side binding cursor <client-side-binding-cursors>`
-such as `ClientCursor`::
+あるいは、次のように、`ClientCursor` などの :ref:`クライアントサイドのバインディング カーソル <client-side-binding-cursors>` を作成します。
+
+.. code:: python
 
     >>> cur = ClientCursor(conn)
     >>> cur.execute("CREATE TABLE foo (id int DEFAULT %s)", [42])
 
-If you need `!ClientCursor` often, you can set the `Connection.cursor_factory`
-to have them created by default by `Connection.cursor()`. This way, Psycopg 3
-will behave largely the same way of Psycopg 2.
+..
+    If you need `!ClientCursor` often, you can set the `Connection.cursor_factory`
+    to have them created by default by `Connection.cursor()`. This way, Psycopg 3
+    will behave largely the same way of Psycopg 2.
 
-Note that, both server-side and client-side, you can only specify **values**
-as parameters (i.e. *the strings that go in single quotes*). If you need to
-parametrize different parts of a statement (such as a table name), you must
-use the `psycopg.sql` module::
+`!ClientCursor` が頻繁に必要になる場合、`Connection.cursor_factory` を設定すると、`Connection.cursor()` がデフォルトで作成するように設定できます。このようにすると、Psycopg 3 は大部分で Psycopg 2 と同じように動作するようになります。
+
+..
+    Note that, both server-side and client-side, you can only specify **values**
+    as parameters (i.e. *the strings that go in single quotes*). If you need to
+    parametrize different parts of a statement (such as a table name), you must
+    use the `psycopg.sql` module::
+
+サーバーサイドとクライアントサイドのいずれでも、パラメータとして指定できるのは特定の **値** (つまり、*シングルクォート内に入る文字列*) だけであることに注意してください。ステートメントの異なるパーツ (テーブル名など) をパラメータ化する必要がある場合には、次のように `psycopg.sql` モジュールを使う必要があります。
+
+..
+        >>> from psycopg import sql
+
+        # This will quote the user and the password using the right quotes
+        # e.g.: ALTER USER "foo" SET PASSWORD 'bar'
+        >>> conn.execute(
+        ...     sql.SQL("ALTER USER {} SET PASSWORD {}")
+        ...     .format(sql.Identifier(username), password))
+
+.. code:: python
 
     >>> from psycopg import sql
 
-    # This will quote the user and the password using the right quotes
-    # e.g.: ALTER USER "foo" SET PASSWORD 'bar'
+    # これはユーザーとパスワードを正しいクォートを使ってクォートします
+    # 例: ALTER USER "foo" SET PASSWORD 'bar'
     >>> conn.execute(
     ...     sql.SQL("ALTER USER {} SET PASSWORD {}")
     ...     .format(sql.Identifier(username), password))
 
+..
+    .. _multi-statements:
+
+    Multiple statements in the same query
+    -------------------------------------
 
 .. _multi-statements:
 
-Multiple statements in the same query
+同じクエリ内の複数のステートメント
 -------------------------------------
 
 As a consequence of using :ref:`server-side bindings <server-side-binding>`,
