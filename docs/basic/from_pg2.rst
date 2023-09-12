@@ -161,9 +161,12 @@ Psycopg 3 は、クエリとパラメータをクライアントサイドでマ�
 同じクエリ内の複数のステートメント
 -------------------------------------
 
-As a consequence of using :ref:`server-side bindings <server-side-binding>`,
-when parameters are used, it is not possible to execute several statements in
-the same `!execute()` call, separating them by semicolon::
+..
+    As a consequence of using :ref:`server-side bindings <server-side-binding>`,
+    when parameters are used, it is not possible to execute several statements in
+    the same `!execute()` call, separating them by semicolon::
+
+:ref:`サーバーサイド バインディング <server-side-binding>` の利用結果として、パラメータが使用されている場合、同じ `!execute()` 呼び出しで、カンマで区切られた複数のステートメントを実行することは不可能になります。
 
     >>> conn.execute(
     ...     "INSERT INTO foo VALUES (%s); INSERT INTO foo VALUES (%s)",
@@ -172,30 +175,55 @@ the same `!execute()` call, separating them by semicolon::
     ...
     psycopg.errors.SyntaxError: cannot insert multiple commands into a prepared statement
 
-One obvious way to work around the problem is to use several `!execute()`
-calls.
+..
+    One obvious way to work around the problem is to use several `!execute()`
+    calls.
 
-**There is no such limitation if no parameters are used**. As a consequence, you
-can compose a multiple query on the client side and run them all in the same
-`!execute()` call, using the `psycopg.sql` objects::
+問題を回避する明らかな方法の1つは、複数の `!execute()` 呼び出しを行うことです。
+
+..
+    **There is no such limitation if no parameters are used**. As a consequence, you
+    can compose a multiple query on the client side and run them all in the same
+    `!execute()` call, using the `psycopg.sql` objects::
+
+**パラメータが使用されていない場合には、そのような制限はありません**。結果として、次のように `psycopg.sql` オブジェクトを使用することで、複数のクエリをクライアントサイドで構築して、同じ `!execute()` 呼び出し内で実行できます。
 
     >>> from psycopg import sql
     >>> conn.execute(
     ...     sql.SQL("INSERT INTO foo VALUES ({}); INSERT INTO foo values ({})"
     ...     .format(10, 20))
 
-or a :ref:`client-side binding cursor <client-side-binding-cursors>`::
+または、次のように :ref:`クライアントサイド バインディング カーソル <client-side-binding-cursors>` を使用します。
 
     >>> cur = psycopg.ClientCursor(conn)
     >>> cur.execute(
     ...     "INSERT INTO foo VALUES (%s); INSERT INTO foo VALUES (%s)",
     ...     (10, 20))
 
+..
+    .. warning::
+
+        If a statement must be executed outside a transaction (such as
+        :sql:`CREATE DATABASE`), it cannot be executed in batch with other
+        statements, even if the connection is in autocommit mode::
+
+            >>> conn.autocommit = True
+            >>> conn.execute("CREATE DATABASE foo; SELECT 1")
+            Traceback (most recent call last):
+            ...
+            psycopg.errors.ActiveSqlTransaction: CREATE DATABASE cannot run inside a transaction block
+
+        This happens because PostgreSQL itself will wrap multiple statements in a
+        transaction. Note that you will experience a different behaviour in
+        :program:`psql` (:program:`psql` will split the queries on semicolons and
+        send them to the server separately).
+
+        This is not new in Psycopg 3: the same limitation is present in
+        `!psycopg2` too.
+
 .. warning::
 
-    If a statement must be executed outside a transaction (such as
-    :sql:`CREATE DATABASE`), it cannot be executed in batch with other
-    statements, even if the connection is in autocommit mode::
+    ステートメントをトランザクションの外部で実行するする必要がある場合 (:sql:`CREATE DATABASE` など)、次のように、たとえコネクションが autocommit モードだとしても、他のステートメントとともにバッチで実行することはできません。
 
         >>> conn.autocommit = True
         >>> conn.execute("CREATE DATABASE foo; SELECT 1")
@@ -203,14 +231,9 @@ or a :ref:`client-side binding cursor <client-side-binding-cursors>`::
         ...
         psycopg.errors.ActiveSqlTransaction: CREATE DATABASE cannot run inside a transaction block
 
-    This happens because PostgreSQL itself will wrap multiple statements in a
-    transaction. Note that you will experience a different behaviour in
-    :program:`psql` (:program:`psql` will split the queries on semicolons and
-    send them to the server separately).
+    この問題が起きるのは、PostgreSQL 自体が複数のステートメントをトランザクション内にラッピングするためです。:program:`psql` では異なる動作を経験することに注意してください (:program:`psql` はクエリをセミコロンで分割して、これらを別々にサーバーに送信します)。
 
-    This is not new in Psycopg 3: the same limitation is present in
-    `!psycopg2` too.
-
+    これは Psycopg 3 の新たな変更というわけではありません。`!psycopg2` にも同じ制限がありました。
 
 .. _multi-results:
 
