@@ -291,21 +291,26 @@ Psycopg 3 は、クエリとパラメータをクライアントサイドでマ�
 
 .. _difference-cast-rules:
 
-Different cast rules
---------------------
+異なるキャスト ルール
+----------------------
 
-In rare cases, especially around variadic functions, PostgreSQL might fail to
-find a function candidate for the given data types::
+..
+    In rare cases, especially around variadic functions, PostgreSQL might fail to
+    find a function candidate for the given data types::
+
+稀な状況では、特に可変引数関数の辺りでは、次のように、PostgreSQL が与えられたデータ型に対する関数の候補を見つけるのに失敗する可能性があります
 
     >>> conn.execute("SELECT json_build_array(%s, %s)", ["foo", "bar"])
     Traceback (most recent call last):
     ...
     psycopg.errors.IndeterminateDatatype: could not determine data type of parameter $1
 
-This can be worked around specifying the argument types explicitly via a cast::
+..
+    This can be worked around specifying the argument types explicitly via a cast::
+
+これは、次のようにキャストを介して引数の型を明示的に指定することで回避できます。
 
     >>> conn.execute("SELECT json_build_array(%s::text, %s::text)", ["foo", "bar"])
-
 
 .. _in-and-tuple:
 
