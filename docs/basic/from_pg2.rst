@@ -235,22 +235,34 @@ Psycopg 3 は、クエリとパラメータをクライアントサイドでマ�
 
     これは Psycopg 3 の新たな変更というわけではありません。`!psycopg2` にも同じ制限がありました。
 
+..
+    .. _multi-results:
+
+    Multiple results returned from multiple statements
+    --------------------------------------------------
+
 .. _multi-results:
 
-Multiple results returned from multiple statements
+複数のステートメントから返される複数の結果
 --------------------------------------------------
 
-If more than one statement returning results is executed in psycopg2, only the
-result of the last statement is returned::
+..
+    If more than one statement returning results is executed in psycopg2, only the
+    result of the last statement is returned::
+
+結果を返す2つ以上のステートメントが psycopg2 で実行された場合、次のように最後のステートメントの結果だけが返されます。
 
     >>> cur_pg2.execute("SELECT 1; SELECT 2")
     >>> cur_pg2.fetchone()
     (2,)
 
-In Psycopg 3 instead, all the results are available. After running the query,
-the first result will be readily available in the cursor and can be consumed
-using the usual `!fetch*()` methods. In order to access the following
-results, you can use the `Cursor.nextset()` method::
+..
+    Psycopg 3 instead, all the results are available. After running the query,
+    the first result will be readily available in the cursor and can be consumed
+    using the usual `!fetch*()` methods. In order to access the following
+    results, you can use the `Cursor.nextset()` method::
+
+代わりに psycopg 3 では、すべての結果が利用できます。クエリを実行した後、最初の結果はカーソル上ですぐに利用可能になり、通常の `!fetch*()` メソッドを使用して取得できます。後続の結果にアクセスするためには、次のように `Cursor.nextset()` メソッドが使用できます。
 
     >>> cur_pg3.execute("SELECT 1; SELECT 2")
     >>> cur_pg3.fetchone()
@@ -264,10 +276,18 @@ results, you can use the `Cursor.nextset()` method::
     >>> cur_pg3.nextset()
     None  # no more results
 
-Remember though that you cannot use server-side bindings to :ref:`execute more
-than one statement in the same query <multi-statements>`, if you are passing
-parameters to the query.
+..
+    Remember though that you cannot use server-side bindings to :ref:`execute more
+    than one statement in the same query <multi-statements>`, if you are passing
+    parameters to the query.
 
+ただし、パラメータをクエリに渡している場合、サーバーサイド バインディングを使って :ref:`2つ以上のステートメントを同じクエリ内で実行する <multi-statements>` ことはできないことに注意してください。
+
+..
+    .. _difference-cast-rules:
+
+    Different cast rules
+    --------------------
 
 .. _difference-cast-rules:
 
