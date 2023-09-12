@@ -312,13 +312,20 @@ Psycopg 3 は、クエリとパラメータをクライアントサイドでマ�
 
     >>> conn.execute("SELECT json_build_array(%s::text, %s::text)", ["foo", "bar"])
 
+..
+    .. _in-and-tuple:
+
+    You cannot use ``IN %s`` with a tuple
+    -------------------------------------
+
 .. _in-and-tuple:
 
-You cannot use ``IN %s`` with a tuple
+``IN %s`` はタプルとともに使えない
 -------------------------------------
 
-``IN`` cannot be used with a tuple as single parameter, as was possible with
-``psycopg2``::
+``IN`` は単一のパラメータとしてタプルとともに使うことはできません。これは ``psygopg2`` では可能でした。
+
+.. code::
 
     >>> conn.execute("SELECT * FROM foo WHERE id IN %s", [(10,20,30)])
     Traceback (most recent call last):
@@ -326,27 +333,44 @@ You cannot use ``IN %s`` with a tuple
     psycopg.errors.SyntaxError: syntax error at or near "$1"
     LINE 1: SELECT * FROM foo WHERE id IN $1
                                           ^
+..
+    What you can do is to use the `= ANY()`__ construct and pass the candidate
+    values as a list instead of a tuple, which will be adapted to a PostgreSQL
+    array::
 
-What you can do is to use the `= ANY()`__ construct and pass the candidate
-values as a list instead of a tuple, which will be adapted to a PostgreSQL
-array::
+できることは、`= ANY()`__ construct を使用して、次のように候補値をタプルではなくリストとして渡すことです。これは PostgreSQL の配列に適応されます。
+
+.. code:: python
 
     >>> conn.execute("SELECT * FROM foo WHERE id = ANY(%s)", [[10,20,30]])
 
-Note that `ANY()` can be used with `!psycopg2` too, and has the advantage of
-accepting an empty list of values too as argument, which is not supported by
-the :sql:`IN` operator instead.
+..
+    Note that `ANY()` can be used with `!psycopg2` too, and has the advantage of
+    accepting an empty list of values too as argument, which is not supported by
+    the :sql:`IN` operator instead.
+
+`ANY()` は `!psycopg2` でも使用でき、空の値のリストも引数として受け取れる利点があることに注意してください。:sql:`IN` 空のリストは演算子ではサポートされていません。
 
 .. __: https://www.postgresql.org/docs/current/functions-comparisons.html
     #id-1.5.8.30.16
 
+..
+    .. _is-null:
+
+    You cannot use ``IS %s``
+    ------------------------
 
 .. _is-null:
 
-You cannot use ``IS %s``
+``IS %s`` は使用できない
 ------------------------
 
-You cannot use :sql:`IS %s` or :sql:`IS NOT %s`::
+..
+    You cannot use :sql:`IS %s` or :sql:`IS NOT %s`::
+
+次のように、:sql:`IS %s` や :sql:`IS NOT %s` は使用できません。
+
+.. code:: python
 
     >>> conn.execute("SELECT * FROM foo WHERE field IS %s", [None])
     Traceback (most recent call last):
@@ -355,10 +379,13 @@ You cannot use :sql:`IS %s` or :sql:`IS NOT %s`::
     LINE 1: SELECT * FROM foo WHERE field IS $1
                                          ^
 
-This is probably caused by the fact that :sql:`IS` is not a binary operator in
-PostgreSQL; rather, :sql:`IS NULL` and :sql:`IS NOT NULL` are unary operators
-and you cannot use :sql:`IS` with anything else on the right hand side.
-Testing in psql:
+..
+    This is probably caused by the fact that :sql:`IS` is not a binary operator in
+    PostgreSQL; rather, :sql:`IS NULL` and :sql:`IS NOT NULL` are unary operators
+    and you cannot use :sql:`IS` with anything else on the right hand side.
+    Testing in psql:
+
+これはおそらく、:sql:`IS` が PostgreSQL では二項演算子ではないという事実に起因します。むしろ、:sql:`IS NULL` と :sql:`IS NOT NULL` は単項演算子であり、:sql:`IS` を右側にある他の何かとともに使用することはできません。psql でテストしてみると、次のようになります。
 
 .. code:: text
 
@@ -367,16 +394,23 @@ Testing in psql:
     LINE 1: select 10 is 10;
                          ^
 
-What you can do instead is to use the `IS DISTINCT FROM operator`__, which
-will gladly accept a placeholder::
+..
+    What you can do instead is to use the `IS DISTINCT FROM operator`__, which
+    will gladly accept a placeholder::
+
+代わりにできることは、`IS DISTINCT FROM 演算子`__ を使用することです。この演算子は、次のようにプレースホルダーを喜んで受け入れます。
+
+.. code:: python
 
     >>> conn.execute("SELECT * FROM foo WHERE field IS NOT DISTINCT FROM %s", [None])
 
 .. __: https://www.postgresql.org/docs/current/functions-comparison.html
 
-Analogously you can use :sql:`IS DISTINCT FROM %s` as a parametric version of
-:sql:`IS NOT %s`.
+..
+    Analogously you can use :sql:`IS DISTINCT FROM %s` as a parametric version of
+    :sql:`IS NOT %s`.
 
+同様に、:sql:`IS DISTINCT FROM %s` はパラメータ バージョンの :sql:`IS NOT %s` として使用できます。
 
 .. _diff-cursors:
 
