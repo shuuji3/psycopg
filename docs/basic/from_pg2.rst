@@ -614,24 +614,35 @@ psycopg 3 では、:ref:`with connection <with-connection>` を使用すると `
 
 psycopg は、データをUnicode 文字列にデコードするために、自動的にデータベース クライアントのエンコーディングを使います。エンコーディングを読み取る必要がある場合は、`ConnectionInfo.encoding` を使用してください。コネクション時のエンコーディングを選択するには `!client_encoding` コネクション パラメータが使用でき、コネクションのエンコーディングは :sql:`SET client_encoding` ステートメントを実行すれば変換することはできます。でも、なぜそのようなことをするのでしょうか？
 
+..
+    .. _transaction-characteristics-and-autocommit:
+
+    Transaction characteristics attributes don't affect autocommit sessions
+    -----------------------------------------------------------------------
+
 .. _transaction-characteristics-and-autocommit:
 
-Transaction characteristics attributes don't affect autocommit sessions
+トランザクションの性質の属性は autocommit セッションに影響を及ぼさない
 -----------------------------------------------------------------------
 
-:ref:`Transactions characteristics attributes <transaction-characteristics>`
-such as `~Connection.read_only` don't affect automatically autocommit
-sessions: they only affect the implicit transactions started by non-autocommit
-sessions and the transactions created by the `~Connection.transaction()`
-block (for both autocommit and non-autocommit connections).
+..
+    :ref:`Transactions characteristics attributes <transaction-characteristics>`
+    such as `~Connection.read_only` don't affect automatically autocommit
+    sessions: they only affect the implicit transactions started by non-autocommit
+    sessions and the transactions created by the `~Connection.transaction()`
+    block (for both autocommit and non-autocommit connections).
 
-If you want to put an autocommit transaction in read-only mode, please use the
-default_transaction_read_only__ GUC, for instance executing the statement
-:sql:`SET default_transaction_read_only TO true`.
+`~Connection.read_only` などの :ref:`トランザクションの性質の属性 <transaction-characteristics>` は自動的な autocommit セッションに影響を及ぼさなくなりました。これらの属性は非 autocommit なセッションにより開始された暗黙のトランザクションと、`~Connection.transaction()` ブロックにより作成されたトランザクション (autocommit および非 autocommit コネクションの両方) にのみ影響します。
+
+..
+    If you want to put an autocommit transaction in read-only mode, please use the
+    default_transaction_read_only__ GUC, for instance executing the statement
+    :sql:`SET default_transaction_read_only TO true`.
+
+autocommit なトランザクションを read-only モードにしたい場合、default_transaction_read_only__ GUC を使用してください。たとえば、ステートメント :sql:`SET default_transaction_read_only TO true` を実行します。
 
 .. __: https://www.postgresql.org/docs/current/runtime-config-client.html
        #GUC-DEFAULT-TRANSACTION-READ-ONLY
-
 
 .. _infinity-datetime:
 
