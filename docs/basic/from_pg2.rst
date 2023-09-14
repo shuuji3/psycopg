@@ -414,35 +414,63 @@ Psycopg 3 は、クエリとパラメータをクライアントサイドでマ�
 
 同様に、:sql:`IS DISTINCT FROM %s` はパラメータ バージョンの :sql:`IS NOT %s` として使用できます。
 
+..
+    .. _diff-cursors:
+
+    Cursors subclasses
+    ------------------
+
 .. _diff-cursors:
 
-Cursors subclasses
-------------------
+カーソル サブクラス
+-------------------
 
-In `!psycopg2`, a few cursor subclasses allowed to return data in different
-form than tuples. In Psycopg 3 the same can be achieved by setting a :ref:`row
-factory <row-factories>`:
+..
+    In `!psycopg2`, a few cursor subclasses allowed to return data in different
+    form than tuples. In Psycopg 3 the same can be achieved by setting a :ref:`row
+    factory <row-factories>`:
 
-- instead of `~psycopg2.extras.RealDictCursor` you can use
-  `~psycopg.rows.dict_row`;
+`!psycopg2` では、少数のカーソルのサブクラスが、タプル以外の形式でデータを返すことができました。psycopg 3 では、同じことが次のように :ref:`行ファクトリ <row-factories>` を設定することで可能になります。
 
-- instead of `~psycopg2.extras.NamedTupleCursor` you can use
-  `~psycopg.rows.namedtuple_row`.
+..
+    - instead of `~psycopg2.extras.RealDictCursor` you can use
+      `~psycopg.rows.dict_row`;
 
-Other row factories are available in the `psycopg.rows` module. There isn't an
-object behaving like `~psycopg2.extras.DictCursor` (whose results are
-indexable both by column position and by column name).
+- `~psycopg2.extras.RealDictCursor` の代わりに `~psycopg.rows.dict_row` が使えます。
+
+..
+    - instead of `~psycopg2.extras.NamedTupleCursor` you can use
+      `~psycopg.rows.namedtuple_row`.
+
+- `~psycopg2.extras.NamedTupleCursor` の代わりに `~psycopg.rows.namedtuple_row` が使えます。
+
+..
+    Other row factories are available in the `psycopg.rows` module. There isn't an
+    object behaving like `~psycopg2.extras.DictCursor` (whose results are
+    indexable both by column position and by column name).
+
+他の利用可能な行ファクトリは、`psycopg.rows` モジュールにあります。`~psycopg2.extras.DictCursor` (その結果が列の位置と列の名前の両方でインデックス可能なもの) のように動作するオブジェクトはありません。
+
+..
+    .. code::
+
+        from psycopg.rows import dict_row, namedtuple_row
+
+        # By default, every cursor will return dicts.
+        conn = psycopg.connect(DSN, row_factory=dict_row)
+
+        # You can set a row factory on a single cursor too.
+        cur = conn.cursor(row_factory=namedtuple_row)
 
 .. code::
 
     from psycopg.rows import dict_row, namedtuple_row
 
-    # By default, every cursor will return dicts.
+    # デフォルトでは、すべてのカーソルがディクショナリを返す。
     conn = psycopg.connect(DSN, row_factory=dict_row)
 
-    # You can set a row factory on a single cursor too.
+    # 行ファクトリには単一のカーソルも設定できる。
     cur = conn.cursor(row_factory=namedtuple_row)
-
 
 .. _diff-adapt:
 
