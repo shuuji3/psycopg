@@ -472,25 +472,42 @@ Psycopg 3 は、クエリとパラメータをクライアントサイドでマ�
     # 行ファクトリには単一のカーソルも設定できる。
     cur = conn.cursor(row_factory=namedtuple_row)
 
+..
+    .. _diff-adapt:
+
+    Different adaptation system
+    ---------------------------
+
 .. _diff-adapt:
 
-Different adaptation system
----------------------------
+異なる適応システム
+-------------------
 
-The adaptation system has been completely rewritten, in order to address
-server-side parameters adaptation, but also to consider performance,
-flexibility, ease of customization.
+..
+    The adaptation system has been completely rewritten, in order to address
+    server-side parameters adaptation, but also to consider performance,
+    flexibility, ease of customization.
 
-The default behaviour with builtin data should be :ref:`what you would expect
-<types-adaptation>`. If you have customised the way to adapt data, or if you
-are managing your own extension types, you should look at the :ref:`new
-adaptation system <adaptation>`.
+適応システムは完全に書き換えられました。これは、サーバーサイドのパラメータの適応に対応するためですが、性能、柔軟性、カスタマイズを簡単にすることも考慮しています。
+
+..
+    The default behaviour with builtin data should be :ref:`what you would expect
+    <types-adaptation>`. If you have customised the way to adapt data, or if you
+    are managing your own extension types, you should look at the :ref:`new
+    adaptation system <adaptation>`.
+
+ビルトインのデータを使用したデフォルトの動作は、:ref:`あなたが期待するとおり <types-adaptation>` のはずです。データの適応方法をカスタマイズしていた場合、または、独自の拡張型を管理している場合、:ref:`新しい適応システム <adaptation>` に目を通す必要があります。
+
+..
+    .. seealso::
+
+        - :ref:`types-adaptation` for the basic behaviour.
+        - :ref:`adaptation` for more advanced use.
 
 .. seealso::
 
-    - :ref:`types-adaptation` for the basic behaviour.
-    - :ref:`adaptation` for more advanced use.
-
+    - 基本的な動作については :ref:`types-adaptation` を参照してください。
+    - より発展的な使い方については :ref:`adaptation` を参照してください。
 
 .. _diff-copy:
 
