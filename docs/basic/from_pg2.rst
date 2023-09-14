@@ -574,29 +574,45 @@ psycopg 3 では、:ref:`with connection <with-connection>` を使用すると `
 
 .. seealso:: 詳細については、:ref:`transaction-context` を参照してください。
 
+..
+    .. _diff-callproc:
+
+    `!callproc()` is gone
+    ---------------------
+
 .. _diff-callproc:
 
-`!callproc()` is gone
----------------------
+`!callproc()` はなくなりました
+------------------------------
 
-`cursor.callproc()` is not implemented. The method has a simplistic semantic
-which doesn't account for PostgreSQL positional parameters, procedures,
-set-returning functions... Use a normal `~Cursor.execute()` with :sql:`SELECT
-function_name(...)` or :sql:`CALL procedure_name(...)` instead.
+..
+    `cursor.callproc()` is not implemented. The method has a simplistic semantic
+    which doesn't account for PostgreSQL positional parameters, procedures,
+    set-returning functions... Use a normal `~Cursor.execute()` with :sql:`SELECT
+    function_name(...)` or :sql:`CALL procedure_name(...)` instead.
 
+`cursor.callproc()` は実装されていません。このメソッドは単純なセマンティクスしか持たず、PostgreSQL の位置引数、プロシージャ、set-returning 関数などを考慮に入れません。代わりに、通常の `~Cursor.execute()` で :sql:`SELECT function_name(...)` または :sql:`CALL procedure_name(...)` を使ってください。
+
+..
+    .. _diff-client-encoding:
+
+    `!client_encoding` is gone
+    --------------------------
 
 .. _diff-client-encoding:
 
-`!client_encoding` is gone
---------------------------
+`!client_encoding` はなくなりました
+-----------------------------------
 
-Psycopg automatically uses the database client encoding to decode data to
-Unicode strings. Use `ConnectionInfo.encoding` if you need to read the
-encoding. You can select an encoding at connection time using the
-`!client_encoding` connection parameter and you can change the encoding of a
-connection by running a :sql:`SET client_encoding` statement... But why would
-you?
+..
+    Psycopg automatically uses the database client encoding to decode data to
+    Unicode strings. Use `ConnectionInfo.encoding` if you need to read the
+    encoding. You can select an encoding at connection time using the
+    `!client_encoding` connection parameter and you can change the encoding of a
+    connection by running a :sql:`SET client_encoding` statement... But why would
+    you?
 
+psycopg は、データをUnicode 文字列にデコードするために、自動的にデータベース クライアントのエンコーディングを使います。エンコーディングを読み取る必要がある場合は、`ConnectionInfo.encoding` を使用してください。コネクション時のエンコーディングを選択するには `!client_encoding` コネクション パラメータが使用でき、コネクションのエンコーディングは :sql:`SET client_encoding` ステートメントを実行すれば変換することはできます。でも、なぜそのようなことをするのでしょうか？
 
 .. _transaction-characteristics-and-autocommit:
 
