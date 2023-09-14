@@ -547,21 +547,32 @@ There is now a single `~Cursor.copy()` method, which is similar to
 `!with` connection
 ------------------
 
-In `!psycopg2`, using the syntax :ref:`with connection <pg2:with>`,
-only the transaction is closed, not the connection. This behaviour is
-surprising for people used to several other Python classes wrapping resources,
-such as files.
+..
+    In `!psycopg2`, using the syntax :ref:`with connection <pg2:with>`,
+    only the transaction is closed, not the connection. This behaviour is
+    surprising for people used to several other Python classes wrapping resources,
+    such as files.
 
-In Psycopg 3, using :ref:`with connection <with-connection>` will close the
-connection at the end of the `!with` block, making handling the connection
-resources more familiar.
+`!psycopg2` では、:ref:`with connection <pg2:with>` という構文を使うと、トランザクションだけがクローズされ、コネクションはクローズされませんでした。この動作は、他のさまざまなリソースをラッピングするファイルなどの Python クラスに慣れている人たちを驚かせました。
 
-In order to manage transactions as blocks you can use the
-`Connection.transaction()` method, which allows for finer control, for
-instance to use nested transactions.
+..
+    In Psycopg 3, using :ref:`with connection <with-connection>` will close the
+    connection at the end of the `!with` block, making handling the connection
+    resources more familiar.
 
-.. seealso:: See :ref:`transaction-context` for details.
+psycopg 3 では、:ref:`with connection <with-connection>` を使用すると `!with` ブロックの最後でコネクションをクローズするようになり、コネクションのリソースの処理をより慣れ親しんだものにしました。
 
+..
+    In order to manage transactions as blocks you can use the
+    `Connection.transaction()` method, which allows for finer control, for
+    instance to use nested transactions.
+
+トランザクションをブロックとして管理するためには、`Connection.transaction()` メソッドが使えます。このメソッドを使うと、たとえばネストされたトランザクションの使用など、細かい制御が可能になります。
+
+..
+    .. seealso:: See :ref:`transaction-context` for details.
+
+.. seealso:: 詳細については、:ref:`transaction-context` を参照してください。
 
 .. _diff-callproc:
 
