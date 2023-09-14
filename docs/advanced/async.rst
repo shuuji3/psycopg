@@ -10,8 +10,8 @@
 
 .. _async:
 
-非同期操作
-==========
+非同期の操作
+============
 
 ..
     Psycopg `~Connection` and `~Cursor` have counterparts `~AsyncConnection` and
