@@ -582,7 +582,7 @@ psycopg 3 では、:ref:`with connection <with-connection>` を使用すると `
 
 .. _diff-callproc:
 
-`!callproc()` はなくなりました
+`!callproc()` はなくなった
 ------------------------------
 
 ..
@@ -601,7 +601,7 @@ psycopg 3 では、:ref:`with connection <with-connection>` を使用すると `
 
 .. _diff-client-encoding:
 
-`!client_encoding` はなくなりました
+`!client_encoding` はなくなった
 -----------------------------------
 
 ..
