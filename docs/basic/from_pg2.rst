@@ -644,44 +644,74 @@ autocommit なトランザクションを read-only モードにしたい場合�
 .. __: https://www.postgresql.org/docs/current/runtime-config-client.html
        #GUC-DEFAULT-TRANSACTION-READ-ONLY
 
+..
+    .. _infinity-datetime:
+
+    No default infinity dates handling
+    ----------------------------------
+
 .. _infinity-datetime:
 
-No default infinity dates handling
-----------------------------------
+デフォルトの infinity な日付の処理はない
+----------------------------------------
 
-PostgreSQL can represent a much wider range of dates and timestamps than
-Python. While Python dates are limited to the years between 1 and 9999
-(represented by constants such as `datetime.date.min` and
-`~datetime.date.max`), PostgreSQL dates extend to BC dates and past the year
-10K. Furthermore PostgreSQL can also represent symbolic dates "infinity", in
-both directions.
+..
+    PostgreSQL can represent a much wider range of dates and timestamps than
+    Python. While Python dates are limited to the years between 1 and 9999
+    (represented by constants such as `datetime.date.min` and
+    `~datetime.date.max`), PostgreSQL dates extend to BC dates and past the year
+    10K. Furthermore PostgreSQL can also represent symbolic dates "infinity", in
+    both directions.
 
-In psycopg2, by default, `infinity dates and timestamps map to 'date.max'`__
-and similar constants. This has the problem of creating a non-bijective
-mapping (two Postgres dates, infinity and 9999-12-31, both map to the same
-Python date). There is also the perversity that valid Postgres dates, greater
-than Python `!date.max` but arguably lesser than infinity, will still
-overflow.
+PostgreSQL は、Python よりずっと広い範囲の日付とタイムスタンプを表現できます。Python の日付は 1 年から 9999 年に制限されますが (`datetime.date.min` と `~datetime.date.max` などの定数で表現される)、PostgreSQL の日付は BC の日付から 10,000 年を超えた日付まで拡張します。さらに、PostgreSQL では両方向でシンボルの日付 "infinity" を表現することもできます。
 
-In Psycopg 3, every date greater than year 9999 will overflow, including
-infinity. If you would like to customize this mapping (for instance flattening
-every date past Y10K on `!date.max`) you can subclass and adapt the
-appropriate loaders: take a look at :ref:`this example
-<adapt-example-inf-date>` to see how.
+..
+    In psycopg2, by default, `infinity dates and timestamps map to 'date.max'`__
+    and similar constants. This has the problem of creating a non-bijective
+    mapping (two Postgres dates, infinity and 9999-12-31, both map to the same
+    Python date). There is also the perversity that valid Postgres dates, greater
+    than Python `!date.max` but arguably lesser than infinity, will still
+    overflow.
+
+psycopg2 では、デフォルトで `infinity の日付とタイムスタンプがマッピングされるのは 'date.max'`__ および同様の定数です。これには、全単射ではないマッピングを作成してしまうという問題があります (2 つの Postgres の日付、infinity と 9999-12-31が、両方とも同じ Python の日付にマッピングされてしまいます)。有効な PostgreSQL の日付 (Python の `!date.max` より大きいが、おそらく無限大より小さい) が依然としてオーバーフローしてしまうという歪みもあります。
+
+..
+    In Psycopg 3, every date greater than year 9999 will overflow, including
+    infinity. If you would like to customize this mapping (for instance flattening
+    every date past Y10K on `!date.max`) you can subclass and adapt the
+    appropriate loaders: take a look at :ref:`this example
+    <adapt-example-inf-date>` to see how.
+
+psycopg 3 では、9999 年より大きいすべての日付は、infinity を含めてオーバーフローします。このマッピングをカスタマイズしたい (たとえば、10,000 年を超えるすべての日付を `!date.max` に平坦化する) 場合には、適切なローダーをサブクラス化して適応できます。方法を学ぶには :ref:`この例 <adapt-example-inf-date>` を参照してください。
 
 .. __: https://www.psycopg.org/docs/usage.html#infinite-dates-handling
 
+..
+    .. _whats-new:
+
+    What's new in Psycopg 3
+    -----------------------
 
 .. _whats-new:
 
-What's new in Psycopg 3
+psycopg 3 の新機能
 -----------------------
 
-- :ref:`Asynchronous support <async>`
-- :ref:`Server-side parameters binding <server-side-binding>`
-- :ref:`Prepared statements <prepared-statements>`
-- :ref:`Binary communication <binary-data>`
-- :ref:`Python-based COPY support <copy>`
-- :ref:`Support for static typing <static-typing>`
-- :ref:`A redesigned connection pool <connection-pools>`
-- :ref:`Direct access to the libpq functionalities <psycopg.pq>`
+..
+    - :ref:`Asynchronous support <async>`
+    - :ref:`Server-side parameters binding <server-side-binding>`
+    - :ref:`Prepared statements <prepared-statements>`
+    - :ref:`Binary communication <binary-data>`
+    - :ref:`Python-based COPY support <copy>`
+    - :ref:`Support for static typing <static-typing>`
+    - :ref:`A redesigned connection pool <connection-pools>`
+    - :ref:`Direct access to the libpq functionalities <psycopg.pq>`
+
+- :ref:`非同期のサポート <async>`
+- :ref:`サーバーサイド パラメータ バインディング <server-side-binding>`
+- :ref:`prepare されたステートメント <prepared-statements>`
+- :ref:`バイナリ通信 <binary-data>`
+- :ref:`Python ベースの COPY のサポート <copy>`
+- :ref:`静的型付けのサポート <static-typing>`
+- :ref:`再デザインされたコネクションプール <connection-pools>`
+- :ref:`libpq の機能への直接アクセス <psycopg.pq>`
