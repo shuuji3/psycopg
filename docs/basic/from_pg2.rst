@@ -509,22 +509,38 @@ Psycopg 3 は、クエリとパラメータをクライアントサイドでマ�
     - 基本的な動作については :ref:`types-adaptation` を参照してください。
     - より発展的な使い方については :ref:`adaptation` を参照してください。
 
+..
+    .. _diff-copy:
+
+    Copy is no longer file-based
+    ----------------------------
+
 .. _diff-copy:
 
-Copy is no longer file-based
-----------------------------
+copy はファイルベースではなくなった
+-----------------------------------
 
-`!psycopg2` exposes :ref:`a few copy methods <pg2:copy>` to interact with
-PostgreSQL :sql:`COPY`. Their file-based interface doesn't make it easy to load
-dynamically-generated data into a database.
+..
+    `!psycopg2` exposes :ref:`a few copy methods <pg2:copy>` to interact with
+    PostgreSQL :sql:`COPY`. Their file-based interface doesn't make it easy to load
+    dynamically-generated data into a database.
+
+`!psycopg2` は PostgreSQL の :sql:`COPY` とやり取りするために :ref:`いくつかの copy メソッド <pg2:copy>` を公開していました。それらのファイルベースのインターフェイスでは、動的に生成されたデータをデータベースに読み込むのが簡単ではありません。
+
+..
+    There is now a single `~Cursor.copy()` method, which is similar to
+    `!psycopg2` `!copy_expert()` in accepting a free-form :sql:`COPY` command and
+    returns an object to read/write data, block-wise or record-wise. The different
+    usage pattern also enables :sql:`COPY` to be used in async interactions.
 
 There is now a single `~Cursor.copy()` method, which is similar to
-`!psycopg2` `!copy_expert()` in accepting a free-form :sql:`COPY` command and
-returns an object to read/write data, block-wise or record-wise. The different
-usage pattern also enables :sql:`COPY` to be used in async interactions.
 
-.. seealso:: See :ref:`copy` for the details.
+現在は、1つの `~Cursor.copy()` メソッドだけがあり、自由形式の :sql:`COPY` コマンドを受け取り、ブロック単位またはレコード単位のデータの読み込み/書き込みのためのオブジェクトを返すという点で `!psycopg2` の `!copy_expert()` に似ています。異なる使用パターンにより、:sql:`COPY` を非同期の対話でも使用することもできます。
 
+..
+    .. seealso:: See :ref:`copy` for the details.
+
+.. seealso:: 詳細については :ref:`copy` も参照してください。
 
 .. _diff-with:
 
