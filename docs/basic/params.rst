@@ -14,24 +14,36 @@
 SQL クエリにパラメータを渡す
 ============================
 
-Most of the times, writing a program you will have to mix bits of SQL
-statements with values provided by the rest of the program:
+..
+    Most of the times, writing a program you will have to mix bits of SQL
+    statements with values provided by the rest of the program:
+
+ほとんどの場合、プログラムを書くときには、次のように他の場所から提供された値を SQL ステートメントと少し混ぜる必要があるでしょう。
 
 .. code::
 
     SELECT some, fields FROM some_table WHERE id = ...
 
-:sql:`id` equals what? Probably you will have a Python value you are looking
-for.
+..
+    :sql:`id` equals what? Probably you will have a Python value you are looking
+    for.
 
+:sql:`id` は何と等しいのでしょうか？ おそらく見つけようとしている Python の値があるはずです。
 
-`!execute()` arguments
+..
+    `!execute()` arguments
+    ----------------------
+
+`!execute()` の引数
 ----------------------
 
-Passing parameters to a SQL statement happens in functions such as
-`Cursor.execute()` by using ``%s`` placeholders in the SQL statement, and
-passing a sequence of values as the second argument of the function. For
-example the Python function call:
+..
+    Passing parameters to a SQL statement happens in functions such as
+    `Cursor.execute()` by using ``%s`` placeholders in the SQL statement, and
+    passing a sequence of values as the second argument of the function. For
+    example the Python function call:
+
+SQL ステートメントへのパラメータの受け渡しは、`Cursor.execute()` などの関数内で SQL ステートメント内の ``%s`` プレースホルダーを使用して、値のシーケンスを関数の第2引数として渡すことで行われます。たとえば、Python の関数呼び出しは次のようになります。
 
 .. code:: python
 
@@ -41,21 +53,32 @@ example the Python function call:
         """,
         (10, datetime.date(2020, 11, 18), "O'Reilly"))
 
-is *roughly* equivalent to the SQL command:
+..
+    is *roughly* equivalent to the SQL command:
+
+これは、*おおよそ* 次の SQL コマンドと同等です。
 
 .. code-block:: sql
 
     INSERT INTO some_table (id, created_at, last_name)
     VALUES (10, '2020-11-18', 'O''Reilly');
 
-Note that the parameters will not be really merged to the query: query and the
-parameters are sent to the server separately: see :ref:`server-side-binding`
-for details.
+..
+    Note that the parameters will not be really merged to the query: query and the
+    parameters are sent to the server separately: see :ref:`server-side-binding`
+    for details.
 
-Named arguments are supported too using :samp:`%({name})s` placeholders in the
-query and specifying the values into a mapping.  Using named arguments allows
-to specify the values in any order and to repeat the same value in several
-places in the query::
+パラメータは本当にはクエリにマージされないことに注意してください。クエリとパラメータはサーバーに別々に送られるためです。詳細については、:ref:`server-side-binding` を参照してください。
+
+..
+    Named arguments are supported too using :samp:`%({name})s` placeholders in the
+    query and specifying the values into a mapping.  Using named arguments allows
+    to specify the values in any order and to repeat the same value in several
+    places in the query::
+
+名前付き引数もサポートされており、クエリ内で :samp:`%({name})s` プレースホルダーを使用して、値をマッピングとして指定します。名前付き引数を使用すると、次のように値を自由な順序で指定したり、同じ値をクエリ内の複数の場所で繰り返したりできます。
+
+.. code:: python
 
     cur.execute("""
         INSERT INTO some_table (id, created_at, updated_at, last_name)
@@ -63,86 +86,172 @@ places in the query::
         """,
         {'id': 10, 'name': "O'Reilly", 'created': datetime.date(2020, 11, 18)})
 
-Using characters ``%``, ``(``, ``)`` in the argument names is not supported.
+..
+    Using characters ``%``, ``(``, ``)`` in the argument names is not supported.
 
-When parameters are used, in order to include a literal ``%`` in the query you
-can use the ``%%`` string::
+引数名内での文字 ``%``、``(``、``)`` の使用はサポートされていません。
 
-    cur.execute("SELECT (%s % 2) = 0 AS even", (10,))       # WRONG
-    cur.execute("SELECT (%s %% 2) = 0 AS even", (10,))      # correct
+..
+    When parameters are used, in order to include a literal ``%`` in the query you
+    can use the ``%%`` string::
 
-While the mechanism resembles regular Python strings manipulation, there are a
-few subtle differences you should care about when passing parameters to a
-query.
+パラメータが使用されたとき、クエリ内にリテラル ``%`` を含めるためには、``%%`` 文字列が使えます。
 
-- The Python string operator ``%`` *must not be used*: the `~cursor.execute()`
-  method accepts a tuple or dictionary of values as second parameter.
-  |sql-warn|__:
+..
+    .. code:: python
 
-  .. |sql-warn| replace:: **Never** use ``%`` or ``+`` to merge values
-      into queries
+        cur.execute("SELECT (%s % 2) = 0 AS even", (10,))       # WRONG
+        cur.execute("SELECT (%s %% 2) = 0 AS even", (10,))      # correct
+
+.. code:: python
+
+    cur.execute("SELECT (%s % 2) = 0 AS even", (10,))       # 間違い！
+    cur.execute("SELECT (%s %% 2) = 0 AS even", (10,))      # 正しい
+
+..
+    While the mechanism resembles regular Python strings manipulation, there are a
+    few subtle differences you should care about when passing parameters to a
+    query.
+
+仕組みは通常の Python 文字列の操作に似ていますが、クエリにパラメータを渡すときに注意が必要な微妙な違いがいくつかあります。
+
+..
+    - The Python string operator ``%`` *must not be used*: the `~cursor.execute()`
+      method accepts a tuple or dictionary of values as second parameter.
+      |sql-warn|__:
+
+- Python 文字列演算子 ``%`` は *絶対に使ってはなりません*。`~cursor.execute()` メソッドは、タプルまたはディクショナリの値を第2引数として受け付けます。|sql-warn|__
+
+  .. |sql-warn| replace:: 値をクエリにマージするために ``%`` または ``+`` は **決して使ってはいけません**
+
+  ..
+      .. code:: python
+
+        cur.execute("INSERT INTO numbers VALUES (%s, %s)" % (10, 20)) # WRONG
+        cur.execute("INSERT INTO numbers VALUES (%s, %s)", (10, 20))  # correct
 
   .. code:: python
 
-    cur.execute("INSERT INTO numbers VALUES (%s, %s)" % (10, 20)) # WRONG
-    cur.execute("INSERT INTO numbers VALUES (%s, %s)", (10, 20))  # correct
+    cur.execute("INSERT INTO numbers VALUES (%s, %s)" % (10, 20)) # 間違い！
+    cur.execute("INSERT INTO numbers VALUES (%s, %s)", (10, 20))  # 正しい
 
   .. __: sql-injection_
 
-- For positional variables binding, *the second argument must always be a
-  sequence*, even if it contains a single variable (remember that Python
-  requires a comma to create a single element tuple)::
+..
+    - For positional variables binding, *the second argument must always be a
+      sequence*, even if it contains a single variable (remember that Python
+      requires a comma to create a single element tuple)::
 
-    cur.execute("INSERT INTO foo VALUES (%s)", "bar")    # WRONG
-    cur.execute("INSERT INTO foo VALUES (%s)", ("bar"))  # WRONG
-    cur.execute("INSERT INTO foo VALUES (%s)", ("bar",)) # correct
-    cur.execute("INSERT INTO foo VALUES (%s)", ["bar"])  # correct
+- 位置での変数バインディングでは、たとえ1つの変数しか含まれていなかったとしても、*第2引数は常にシーケンスでなければなりません* (Python では1要素のタプルを作るためにカンマが必要であることを思い出してください)。
 
-- The placeholder *must not be quoted*::
+  ..
+      .. code:: python
 
+        cur.execute("INSERT INTO foo VALUES (%s)", "bar")    # WRONG
+        cur.execute("INSERT INTO foo VALUES (%s)", ("bar"))  # WRONG
+        cur.execute("INSERT INTO foo VALUES (%s)", ("bar",)) # correct
+        cur.execute("INSERT INTO foo VALUES (%s)", ["bar"])  # correct
+
+  .. code:: python
+
+    cur.execute("INSERT INTO foo VALUES (%s)", "bar")    # 間違い！
+    cur.execute("INSERT INTO foo VALUES (%s)", ("bar"))  # 間違い！
+    cur.execute("INSERT INTO foo VALUES (%s)", ("bar",)) # 正しい
+    cur.execute("INSERT INTO foo VALUES (%s)", ["bar"])  # 正しい
+
+..
+    - The placeholder *must not be quoted*::
+
+- プレースホルダーは、次のように *クォートで囲んではいけません*。
+
+  ..
     cur.execute("INSERT INTO numbers VALUES ('%s')", ("Hello",)) # WRONG
     cur.execute("INSERT INTO numbers VALUES (%s)", ("Hello",))   # correct
 
-- The variables placeholder *must always be a* ``%s``, even if a different
-  placeholder (such as a ``%d`` for integers or ``%f`` for floats) may look
-  more appropriate for the type. You may find other placeholders used in
-  Psycopg queries (``%b`` and ``%t``) but they are not related to the
-  type of the argument: see :ref:`binary-data` if you want to read more::
+  .. code:: python
 
+    cur.execute("INSERT INTO numbers VALUES ('%s')", ("Hello",)) # 間違い！
+    cur.execute("INSERT INTO numbers VALUES (%s)", ("Hello",))   # 正しい
+
+..
+    - The variables placeholder *must always be a* ``%s``, even if a different
+      placeholder (such as a ``%d`` for integers or ``%f`` for floats) may look
+      more appropriate for the type. You may find other placeholders used in
+      Psycopg queries (``%b`` and ``%t``) but they are not related to the
+      type of the argument: see :ref:`binary-data` if you want to read more::
+
+- 変数のプレースホルダーは、たとえその型に対して他のプレースホルダー (整数に対して ``%d`` や浮動小数点数に対して ``%f`` など) がより適切だと思えたとしても、*常に* ``%s`` *でなければなりません*。psycopg のクエリで他のプレースホルダー (``%b`` と ``%t``) が使われているのを見かけるかもしれませんが、それらは引数の型とは無関係です。詳細について知りたい場合は、:ref:`binary-data` を参照してください。
+
+  ..
     cur.execute("INSERT INTO numbers VALUES (%d)", (10,))   # WRONG
     cur.execute("INSERT INTO numbers VALUES (%s)", (10,))   # correct
 
-- Only query values should be bound via this method: it shouldn't be used to
-  merge table or field names to the query. If you need to generate SQL queries
-  dynamically (for instance choosing a table name at runtime) you can use the
-  functionalities provided in the `psycopg.sql` module::
+  .. code:: python
 
+    cur.execute("INSERT INTO numbers VALUES (%d)", (10,))   # 間違い！
+    cur.execute("INSERT INTO numbers VALUES (%s)", (10,))   # 正しい
+
+..
+    - Only query values should be bound via this method: it shouldn't be used to
+      merge table or field names to the query. If you need to generate SQL queries
+      dynamically (for instance choosing a table name at runtime) you can use the
+      functionalities provided in the `psycopg.sql` module::
+
+- このメソッドを介してバインドされるのは、クエリの値だけであるべきです。テーブルやフィールドの名前をクエリにマージするのに使われるべきではありません。SQL クエリを動的に生成する必要がある場合 (たとえば、テーブル名をランタイムに選択するなど)、次のように `psycopg.sql` モジュールが提供する機能が使えます。
+
+  ..
     cur.execute("INSERT INTO %s VALUES (%s)", ('numbers', 10))  # WRONG
     cur.execute(                                                # correct
         SQL("INSERT INTO {} VALUES (%s)").format(Identifier('numbers')),
         (10,))
 
+  .. code:: python
+
+    cur.execute("INSERT INTO %s VALUES (%s)", ('numbers', 10))  # 間違い！
+    cur.execute(                                                # 正しい
+        SQL("INSERT INTO {} VALUES (%s)").format(Identifier('numbers')),
+        (10,))
 
 .. index:: Security, SQL injection
 
+..
+    .. _sql-injection:
+
+    Danger: SQL injection
+    ---------------------
+
 .. _sql-injection:
 
-Danger: SQL injection
----------------------
+危険: SQL インジェクション
+--------------------------
 
-The SQL representation of many data types is often different from their Python
-string representation. The typical example is with single quotes in strings:
-in SQL single quotes are used as string literal delimiters, so the ones
-appearing inside the string itself must be escaped, whereas in Python single
-quotes can be left unescaped if the string is delimited by double quotes.
+..
+    The SQL representation of many data types is often different from their Python
+    string representation. The typical example is with single quotes in strings:
+    in SQL single quotes are used as string literal delimiters, so the ones
+    appearing inside the string itself must be escaped, whereas in Python single
+    quotes can be left unescaped if the string is delimited by double quotes.
 
-Because of the difference, sometimes subtle, between the data types
-representations, a naïve approach to query strings composition, such as using
-Python strings concatenation, is a recipe for *terrible* problems::
+多くのデータ型の SQL 表現は、多くの場合に Python の文字列表現とは異なります。典型的な例は、文字列がシングルクォートで囲まれることです。SQL では、シングルクォートは文字列リテラルの区切り文字として使われるため、文字列自体の内部に現れるシングルクォートはエスケープする必要があります。一方で、文字列がダブルクォート区切りの場合、Python のシングルクォートは、エスケープせずに残しておけます。
 
+..
+    Because of the difference, sometimes subtle, between the data types
+    representations, a naïve approach to query strings composition, such as using
+    Python strings concatenation, is a recipe for *terrible* problems::
+
+データ型の表現の (ときには微妙な) 違いが原因で、たとえば Python 文字列の結合を使用するなど、クエリ文字列を構成するときにナイーブなアプローチを取ってしまうことが原因で、*恐ろしい* 問題のレシピとなってしまうことがあります。
+
+..
     SQL = "INSERT INTO authors (name) VALUES ('%s')" # NEVER DO THIS
     data = ("O'Reilly", )
     cur.execute(SQL % data) # THIS WILL FAIL MISERABLY
+    # SyntaxError: syntax error at or near "Reilly"
+
+.. code:: python
+
+    SQL = "INSERT INTO authors (name) VALUES ('%s')" # これは絶対にしてはいけない！
+    data = ("O'Reilly", )
+    cur.execute(SQL % data) # これは大失敗に終わる！
     # SyntaxError: syntax error at or near "Reilly"
 
 If the variables containing the data to send to the database come from an
