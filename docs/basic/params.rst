@@ -356,43 +356,66 @@ SQL コマンド内で変数を渡すための正しい方法は、次のよう�
 バイナリ パラメータと結果
 -----------------------------
 
-PostgreSQL has two different ways to transmit data between client and server:
-`~psycopg.pq.Format.TEXT`, always available, and `~psycopg.pq.Format.BINARY`,
-available most of the times but not always. Usually the binary format is more
-efficient to use.
+..
+    PostgreSQL has two different ways to transmit data between client and server:
+    `~psycopg.pq.Format.TEXT`, always available, and `~psycopg.pq.Format.BINARY`,
+    available most of the times but not always. Usually the binary format is more
+    efficient to use.
 
-Psycopg can support both formats for each data type. Whenever a value
-is passed to a query using the normal ``%s`` placeholder, the best format
-available is chosen (often, but not always, the binary format is picked as the
-best choice).
+PostgreSQL には、データをクライアントとサーバー間で転送する2種類の異なる方法があります。`~psycopg.pq.Format.TEXT` は常に利用可能な方法で、`~psycopg.pq.Format.BINARY` はほとんどの場合に利用可能ですが常にではありません。通常は、バイナリ フォーマットを使うのがより効率的です。
 
-If you have a reason to select explicitly the binary format or the text format
-for a value you can use respectively a ``%b`` placeholder or a ``%t``
-placeholder instead of the normal ``%s``. `~Cursor.execute()` will fail if a
-`~psycopg.adapt.Dumper` for the right data type and format is not available.
+..
+    Psycopg can support both formats for each data type. Whenever a value
+    is passed to a query using the normal ``%s`` placeholder, the best format
+    available is chosen (often, but not always, the binary format is picked as the
+    best choice).
 
-The same two formats, text or binary, are used by PostgreSQL to return data
-from a query to the client. Unlike with parameters, where you can choose the
-format value-by-value, all the columns returned by a query will have the same
-format. Every type returned by the query should have a `~psycopg.adapt.Loader`
-configured, otherwise the data will be returned as unparsed `!str` (for text
-results) or buffer (for binary results).
+psycopg はデータ型ごとに両方のフォーマットをサポートできます。普通の ``%s`` プレースホルダーを使用してクエリに値が渡されるたびに、利用可能な最適なフォーマットが選ばれます (常にではありませんが、多くの場合にバイナリ フォーマットが最善の選択として選ばれます)。
+
+..
+    If you have a reason to select explicitly the binary format or the text format
+    for a value you can use respectively a ``%b`` placeholder or a ``%t``
+    placeholder instead of the normal ``%s``. `~Cursor.execute()` will fail if a
+    `~psycopg.adapt.Dumper` for the right data type and format is not available.
+
+値に対して明示的にバイナリ フォーマットまたはテキスト フォーマットを選択する理由がある場合は、それぞれ ``%b`` プレースホルダーまたは ``%t`` プレースホルダーを通常の ``%s`` の代わりに使用できます。正しいデータ型に対する `~psycopg.adapt.Dumper` とフォーマットが利用できない場合、`~Cursor.execute()` は失敗します。
+
+..
+    The same two formats, text or binary, are used by PostgreSQL to return data
+    from a query to the client. Unlike with parameters, where you can choose the
+    format value-by-value, all the columns returned by a query will have the same
+    format. Every type returned by the query should have a `~psycopg.adapt.Loader`
+    configured, otherwise the data will be returned as unparsed `!str` (for text
+    results) or buffer (for binary results).
+
+同じ2つのフォーマット (テキストまたはバイナリ) は、PostgreSQL がクエリからデータをクライアントに返すためにも使用されます。値ごとにフォーマットを選択できるパラメータの場合とは違い、クエリから返されるすべての列は同じフォーマットを持ちます。クエリから返されたすべての型は設定された `~psycopg.adapt.Loader` を持つ必要があり、もし存在しない場合にはデータは未パースの `!str` (テキストの結果の場合) または buffer (バイナリの結果の場合) として返されます。
+
+..
+    .. note::
+        The `pg_type`_ table defines which format is supported for each PostgreSQL
+        data type. Text input/output is managed by the functions declared in the
+        ``typinput`` and ``typoutput`` fields (always present), binary
+        input/output is managed by the ``typsend`` and ``typreceive`` (which are
+        optional).
+
+        .. _pg_type: https://www.postgresql.org/docs/current/catalog-pg-type.html
 
 .. note::
-    The `pg_type`_ table defines which format is supported for each PostgreSQL
-    data type. Text input/output is managed by the functions declared in the
-    ``typinput`` and ``typoutput`` fields (always present), binary
-    input/output is managed by the ``typsend`` and ``typreceive`` (which are
-    optional).
+    `pg_type`_ テーブルには、PostgreSQL のそれぞれのデータ型に対してどのフォーマットがサポートされているかが定義されています。テキストの入出力は ``typinput`` and ``typoutput`` (常に存在) フィールドで宣言された関数により管理されており、バイナリの入出力は ``typsend`` と ``typreceive`` (オプション) によって宣言されています。
 
     .. _pg_type: https://www.postgresql.org/docs/current/catalog-pg-type.html
 
-Because not every PostgreSQL type supports binary output, by default, the data
-will be returned in text format. In order to return data in binary format you
-can create the cursor using `Connection.cursor`\ `!(binary=True)` or execute
-the query using `Cursor.execute`\ `!(binary=True)`. A case in which
-requesting binary results is a clear winner is when you have large binary data
-in the database, such as images::
+..
+    Because not every PostgreSQL type supports binary output, by default, the data
+    will be returned in text format. In order to return data in binary format you
+    can create the cursor using `Connection.cursor`\ `!(binary=True)` or execute
+    the query using `Cursor.execute`\ `!(binary=True)`. A case in which
+    requesting binary results is a clear winner is when you have large binary data
+    in the database, such as images::
+
+デフォルトでは、すべての PostgreSQL の型がバイナリのアウトプットをサポートしているわけではないので、データはテキスト フォーマットで返されます。データをバイナリ フォーマットで返すためには、`Connection.cursor`\ `!(binary=True)` を使用してカーソルを作成するか、クエリを `Cursor.execute`\ `!(binary=True)` を使用して実行します。バイナリの結果をリクエストするのが明らかに優れているのは、次のように、画像などの大きなバイナリデータがデータベースにある場合です。
+
+.. code:: python
 
     cur.execute(
         "SELECT image_data FROM images WHERE id = %s", [image_id], binary=True)
