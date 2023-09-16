@@ -254,57 +254,93 @@ SQL ステートメントへのパラメータの受け渡しは、`Cursor.execu
     cur.execute(SQL % data) # これは大失敗に終わる！
     # SyntaxError: syntax error at or near "Reilly"
 
-If the variables containing the data to send to the database come from an
-untrusted source (such as data coming from a form on a web site) an attacker
-could easily craft a malformed string, either gaining access to unauthorized
-data or performing destructive operations on the database. This form of attack
-is called `SQL injection`_ and is known to be one of the most widespread forms
-of attack on database systems. Before continuing, please print `this page`__
-as a memo and hang it onto your desk.
+..
+    If the variables containing the data to send to the database come from an
+    untrusted source (such as data coming from a form on a web site) an attacker
+    could easily craft a malformed string, either gaining access to unauthorized
+    data or performing destructive operations on the database. This form of attack
+    is called `SQL injection`_ and is known to be one of the most widespread forms
+    of attack on database systems. Before continuing, please print `this page`__
+    as a memo and hang it onto your desk.
+
+データベースに送信するデータを含む変数が信頼できない情報源 (ウェブサイト上のフォームから送られたデータなど) に由来する場合、攻撃者は不正な形式の文字列を簡単に作成できるため、許可されていないデータへのアクセスを獲得したり、データベース上で破壊的な操作を実行できてしまいます。この形式の攻撃は `SQL injection`_ と呼ばれ、データベース システムに対して、最も広く発生している形式の攻撃の1つとして知られています。読み進める前に、忘れないように `このページ`__ を印刷して机の上に貼ってください。
 
 .. _SQL injection: https://en.wikipedia.org/wiki/SQL_injection
 .. __: https://xkcd.com/327/
 
-Psycopg can :ref:`automatically convert Python objects to SQL
-values<types-adaptation>`: using this feature your code will be more robust
-and reliable. We must stress this point:
+..
+    Psycopg can :ref:`automatically convert Python objects to SQL
+    values<types-adaptation>`: using this feature your code will be more robust
+    and reliable. We must stress this point:
+
+psycopg は :ref:`Python オブジェクトを自動的に SQL の値に変換します <types-adaptation>`。この機能を使用することで、コードはより頑強で信頼できるものになります。以下の点は強調しておかなければなりません。
+
+..
+    .. warning::
+
+        - Don't manually merge values to a query: hackers from a foreign country
+          will break into your computer and steal not only your disks, but also
+          your cds, leaving you only with the three most embarrassing records you
+          ever bought. On cassette tapes.
+
+        - If you use the ``%`` operator to merge values to a query, con artists
+          will seduce your cat, who will run away taking your credit card
+          and your sunglasses with them.
+
+        - If you use ``+`` to merge a textual value to a string, bad guys in
+          balaclava will find their way to your fridge, drink all your beer, and
+          leave your toilet seat up and your toilet paper in the wrong orientation.
+
+        - You don't want to manually merge values to a query: :ref:`use the
+          provided methods <query-parameters>` instead.
 
 .. warning::
 
-    - Don't manually merge values to a query: hackers from a foreign country
-      will break into your computer and steal not only your disks, but also
-      your cds, leaving you only with the three most embarrassing records you
-      ever bought. On cassette tapes.
+    - クエリに値を手動でマージしないでください。そんなことをしたら、外国からのハッカーがあなたのコンピュータに侵入し、ディスクだけでなく CD も盗み、あなたがこれまでに買った中で最も恥ずかしいレコード 3 枚だけを残すでしょう。カセットテープで。
 
-    - If you use the ``%`` operator to merge values to a query, con artists
-      will seduce your cat, who will run away taking your credit card
-      and your sunglasses with them.
+    - もし ``%`` 演算子を使用して値をクエリにマージしたら、詐欺師はあなたの猫を誘惑し、猫はあなたのクレジットカードとサングラスを取って詐欺師と一緒に逃げ去るでしょう。
 
-    - If you use ``+`` to merge a textual value to a string, bad guys in
-      balaclava will find their way to your fridge, drink all your beer, and
-      leave your toilet seat up and your toilet paper in the wrong orientation.
+    - もし ``+`` を使ってテキストの値を文字列にマージしたら、バラクラバをかぶった悪い人たちが冷蔵庫にたどり着き、すべてのビールを飲み干し、トイレの便座を上げたままにし、トイレットペーパーの向きを間違ったままにしてしまうでしょう。
 
-    - You don't want to manually merge values to a query: :ref:`use the
-      provided methods <query-parameters>` instead.
+    - もう値をクエリに手動でマージしたいとは思わないはずです。その代わりに :ref:`提供されたメソッド <query-parameters>` を使ってください。
 
-The correct way to pass variables in a SQL command is using the second
-argument of the `Cursor.execute()` method::
+..
+    The correct way to pass variables in a SQL command is using the second
+    argument of the `Cursor.execute()` method::
 
+SQL コマンド内で変数を渡すための正しい方法は、次のように `Cursor.execute()` メソッドの第2引数を使うことです。
+
+..
     SQL = "INSERT INTO authors (name) VALUES (%s)"  # Note: no quotes
     data = ("O'Reilly", )
     cur.execute(SQL, data)  # Note: no % operator
 
+.. code:: python
+
+    SQL = "INSERT INTO authors (name) VALUES (%s)"  # Note: no quotes
+    data = ("O'Reilly", )
+    cur.execute(SQL, data)  # メモ: % 演算子はなし
+
+..
+    .. note::
+
+        Python static code checkers are not quite there yet, but, in the future,
+        it will be possible to check your code for improper use of string
+        expressions in queries. See :ref:`literal-string` for details.
+
 .. note::
 
-    Python static code checkers are not quite there yet, but, in the future,
-    it will be possible to check your code for improper use of string
-    expressions in queries. See :ref:`literal-string` for details.
+    Python の静的コードチェッカーはまだそこまでは進んでいません。しかし、将来はクエリ内の文字列式の不適切な使用をチェック可能になるでしょう。詳細は :ref:`literal-string` を参照してください。
+
+..
+    .. seealso::
+
+        Now that you know how to pass parameters to queries, you can take a look
+        at :ref:`how Psycopg converts data types <types-adaptation>`.
 
 .. seealso::
 
-    Now that you know how to pass parameters to queries, you can take a look
-    at :ref:`how Psycopg converts data types <types-adaptation>`.
-
+    これでパラメータをクエリに渡す方法が理解できたはずなので、:ref:`psycopg がデータ型を変換する方法 <types-adaptation>` を読むことができます。
 
 .. index::
     pair: Binary; Parameters
