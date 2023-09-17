@@ -9,42 +9,80 @@
 インストール
 ============
 
-In short, if you use a :ref:`supported system<supported-systems>`::
+..
+    In short, if you use a :ref:`supported system<supported-systems>`::
 
+簡潔に言うと、:ref:`サポートされているシステム <supported-systems>` を使っている場合は、次のコマンドでインストールできます。
+
+..
     pip install --upgrade pip           # upgrade pip to at least 20.3
     pip install "psycopg[binary]"
 
-and you should be :ref:`ready to start <module-usage>`. Read further for
-alternative ways to install.
+.. code:: shell
 
+    pip install --upgrade pip           # pip を 20.3 以上にアップグレードする
+    pip install "psycopg[binary]"
+
+..
+    and you should be :ref:`ready to start <module-usage>`. Read further for
+    alternative ways to install.
+
+これで、:ref:`始める準備ができた <module-usage>` はずです。他のインストール方法については、続きを読み進めてください。
+
+..
+    .. _supported-systems:
+
+    Supported systems
+    -----------------
 
 .. _supported-systems:
 
-Supported systems
------------------
+サポートされているシステム
+--------------------------
 
-The Psycopg version documented here has *official and tested* support for:
+..
+    The Psycopg version documented here has *official and tested* support for:
 
-- Python: from version 3.7 to 3.11
+ここにドキュメントされている psycopg のバージョンは、以下の環境で *公式かつテスト済みで* サポートされます。
 
-  - Python 3.6 supported before Psycopg 3.1
+..
+    - Python: from version 3.7 to 3.11
 
-- PostgreSQL: from version 10 to 15
-- OS: Linux, macOS, Windows
+      - Python 3.6 supported before Psycopg 3.1
 
-The tests to verify the supported systems run in `Github workflows`__:
-anything that is not tested there is not officially supported. This includes:
+    - PostgreSQL: from version 10 to 15
+    - OS: Linux, macOS, Windows
+
+- Python: バージョン 3.7 から 3.11
+
+  - Python 3.6 は psycopg 3.1 より前までサポートされていました
+
+- PostgreSQL: バージョン 10 から 15
+- OS: Linux、macOS、Windows
+
+..
+    The tests to verify the supported systems run in `Github workflows`__:
+    anything that is not tested there is not officially supported. This includes:
+
+サポートされたシステムを検証するテストは `Github workflows`__ で実行されています。そこでテストされていないものはすべて公式にはサポートされません。これには、次のものが含まれます。
 
 .. __: https://github.com/psycopg/psycopg/actions
 
-- Unofficial Python distributions such as Conda;
-- Alternative PostgreSQL implementation;
-- macOS hardware and releases not available on Github workflows.
+..
+    - Unofficial Python distributions such as Conda;
+    - Alternative PostgreSQL implementation;
+    - macOS hardware and releases not available on Github workflows.
 
-If you use an unsupported system, things might work (because, for instance, the
-database may use the same wire protocol as PostgreSQL) but we cannot guarantee
-the correct working or a smooth ride.
+- Conda などの非公式の Python ディストリビューション
+- PostgreSQL の代替実装
+- GitHub ワークフローで利用可能ではない macOS ハードウェアおよびリリース
 
+..
+    If you use an unsupported system, things might work (because, for instance, the
+    database may use the same wire protocol as PostgreSQL) but we cannot guarantee
+    the correct working or a smooth ride.
+
+サポートされていないシステムで使用した場合でも、動作するかもしれません (なぜなら、たとえば、データベースが PostgreSQL と同一のワイヤープロトコルを使用しているかもしれないため) が、正しい動作や快適な使い勝手は保証できません。
 
 .. _binary-install:
 
