@@ -84,38 +84,66 @@
 
 サポートされていないシステムで使用した場合でも、動作するかもしれません (なぜなら、たとえば、データベースが PostgreSQL と同一のワイヤープロトコルを使用しているかもしれないため) が、正しい動作や快適な使い勝手は保証できません。
 
+..
+    .. _binary-install:
+
+    Binary installation
+    -------------------
+
 .. _binary-install:
 
-Binary installation
--------------------
+バイナリのインストール
+----------------------
 
-The quickest way to start developing with Psycopg 3 is to install the binary
-packages by running::
+..
+    The quickest way to start developing with Psycopg 3 is to install the binary
+    packages by running::
+
+psycopg 3 を使用して開発を始める最も早い方法は、次のようにバイナリパッケージをインストールすることです。
+
+.. code:: shell
 
     pip install "psycopg[binary]"
 
-This will install a self-contained package with all the libraries needed.
-**You will need pip 20.3 at least**: please run ``pip install --upgrade pip``
-to update it beforehand.
+..
+    This will install a self-contained package with all the libraries needed.
+    **You will need pip 20.3 at least**: please run ``pip install --upgrade pip``
+    to update it beforehand.
 
-The above package should work in most situations. It **will not work** in
-some cases though.
+これにより、必要なすべてのライブラリが同梱された自己完結のパッケージがインストールされます。**最低でも pip 20.3 が必要です**。``pip install --upgrade pip`` を実行して事前にアップデートしてください。
 
-If your platform is not supported you should proceed to a :ref:`local
-installation <local-installation>` or a :ref:`pure Python installation
-<pure-python-installation>`.
+..
+    The above package should work in most situations. It **will not work** in
+    some cases though.
+
+上のパッケージはほとんどの状況で動作するはずです。ただし、いくつかの場合には **動作しません**。
+
+..
+    If your platform is not supported you should proceed to a :ref:`local
+    installation <local-installation>` or a :ref:`pure Python installation
+    <pure-python-installation>`.
+
+プラットフォームがサポートされていない場合、:ref:`ローカル インストール <local-installation>` か :ref:`純粋な Python インストール <pure-python-installation>` に進んでください。
+
+..
+    .. seealso::
+
+        Did Psycopg 3 install ok? Great! You can now move on to the :ref:`basic
+        module usage <module-usage>` to learn how it works.
+
+        Keep on reading if the above method didn't work and you need a different
+        way to install Psycopg 3.
+
+        For further information about the differences between the packages see
+        :ref:`pq-impl`.
 
 .. seealso::
 
-    Did Psycopg 3 install ok? Great! You can now move on to the :ref:`basic
-    module usage <module-usage>` to learn how it works.
+    psycopg 3 は上手くインストールできましたか？ 素晴らしい！ これで :ref:`module-usage` に進んで動作方法が学べます。
 
-    Keep on reading if the above method didn't work and you need a different
-    way to install Psycopg 3.
+    上記のメソッドが上手く動作しない場合は、読み進めて、他の方法で psycopg 3 をインストールする必要があります。
 
-    For further information about the differences between the packages see
-    :ref:`pq-impl`.
-
+    パッケージ間の違いについての詳しい情報は、:ref:`pq-impl` を参照してください。
 
 .. _local-installation:
 
@@ -135,9 +163,14 @@ In order to perform a local installation you need some prerequisites:
 - PostgreSQL client development headers (e.g. the ``libpq-dev`` package).
 - The :program:`pg_config` program available in the :envvar:`PATH`.
 
+..
+    You **must be able** to troubleshoot an extension build, for instance you must
+    be able to read your compiler's error message. If you are not, please don't
+    try this and follow the `binary installation`_ instead.
+
 You **must be able** to troubleshoot an extension build, for instance you must
 be able to read your compiler's error message. If you are not, please don't
-try this and follow the `binary installation`_ instead.
+try this and follow the `binary-install`_ instead.
 
 If your build prerequisites are in place you can run::
 
@@ -171,8 +204,11 @@ need::
     systems, installing :program:`psql` will install the ``libpq`` too as a
     dependency.
 
-If you are not able to fulfill this requirement please follow the `binary
-installation`_.
+..
+    If you are not able to fulfill this requirement please follow the `binary
+    installation`_.
+
+If you are not able to fulfill this requirement please follow the `binary-install`_.
 
 ..
     .. _pool-installation:
