@@ -145,37 +145,57 @@ psycopg 3 を使用して開発を始める最も早い方法は、次のよう�
 
     パッケージ間の違いについての詳しい情報は、:ref:`pq-impl` を参照してください。
 
+..
+    .. _local-installation:
+
+    Local installation
+    ------------------
+
 .. _local-installation:
 
-Local installation
-------------------
+ローカル インストール
+---------------------
 
-A "Local installation" results in a performing and maintainable library. The
-library will include the speed-up C module and will be linked to the system
-libraries (``libpq``, ``libssl``...) so that system upgrade of libraries will
-upgrade the libraries used by Psycopg 3 too. This is the preferred way to
-install Psycopg for a production site.
+..
+    A "Local installation" results in a performing and maintainable library. The
+    library will include the speed-up C module and will be linked to the system
+    libraries (``libpq``, ``libssl``...) so that system upgrade of libraries will
+    upgrade the libraries used by Psycopg 3 too. This is the preferred way to
+    install Psycopg for a production site.
 
-In order to perform a local installation you need some prerequisites:
+「ローカル インストール」により、機能するメンテナンス可能なライブラリが得られます。ライブラリはスピードアップのための C モジュールを含み、ライブラリのシステム アップグレードが psycopg 3 でも使われているライブラリをアップグレードできるように、システム ライブラリ (``libpq``, ``libssl``...) にリンクされます。これは psycopg を本番環境にインストールするための望ましい方法です。
 
-- a C compiler,
-- Python development headers (e.g. the ``python3-dev`` package).
-- PostgreSQL client development headers (e.g. the ``libpq-dev`` package).
-- The :program:`pg_config` program available in the :envvar:`PATH`.
+..
+    In order to perform a local installation you need some prerequisites:
+
+ローカル インストールを実行するためには、いくつかの前提条件が必要です。
+
+..
+    - a C compiler,
+    - Python development headers (e.g. the ``python3-dev`` package).
+    - PostgreSQL client development headers (e.g. the ``libpq-dev`` package).
+    - The :program:`pg_config` program available in the :envvar:`PATH`.
+
+- C コンパイラ。
+- Python development ヘッダ (たとえば、``python3-dev`` パッケージ)。
+- PostgreSQL クライアント development ヘッダ (たとえば、``libpq-dev`` パッケージ)。
+- :program:`pg_config` プログラムが :envvar:`PATH` で利用可能であること。
 
 ..
     You **must be able** to troubleshoot an extension build, for instance you must
     be able to read your compiler's error message. If you are not, please don't
     try this and follow the `binary installation`_ instead.
 
-You **must be able** to troubleshoot an extension build, for instance you must
-be able to read your compiler's error message. If you are not, please don't
-try this and follow the `binary-install`_ instead.
+あなたは extension のビルドのトラブルシューティングが **できなければいけません**。たとえば、あなたはコンパイラのエラーメッセージを読んで理解できる必要があります。もしそれができないなら、この方法を試すのはやめて、代わりに `binary-install`_ に従ってください。
 
-If your build prerequisites are in place you can run::
+..
+    If your build prerequisites are in place you can run::
+
+ビルドの前提条件が満たされていれば、次のコマンドが実行できます。
+
+.. code:: shell
 
     pip install "psycopg[c]"
-
 
 .. _pure-python-installation:
 
