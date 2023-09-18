@@ -39,6 +39,7 @@ release = psycopg.__version__
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
+    "sphinxext.opengraph",
     # Currently breaking docs link (see #562)
     # "sphinx_autodoc_typehints",
     "sql_role",
@@ -46,6 +47,12 @@ extensions = [
     "pg3_docs",
     "libpq_docs",
 ]
+
+ogp_social_cards = {
+    "font": "Noto Sans CJK JP",
+}
+
+ogp_description_length = 140
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
