@@ -85,12 +85,12 @@
 サポートされていないシステムで使用した場合でも、動作するかもしれません (なぜなら、たとえば、データベースが PostgreSQL と同一のワイヤープロトコルを使用しているかもしれないため) が、正しい動作や快適な使い勝手は保証できません。
 
 ..
-    .. _binary-install:
+    .. _binary-installation:
 
     Binary installation
     -------------------
 
-.. _binary-install:
+.. _binary-installation:
 
 バイナリのインストール
 ----------------------
@@ -186,7 +186,7 @@ psycopg 3 を使用して開発を始める最も早い方法は、次のよう�
     be able to read your compiler's error message. If you are not, please don't
     try this and follow the `binary installation`_ instead.
 
-あなたは extension のビルドのトラブルシューティングが **できなければいけません**。たとえば、あなたはコンパイラのエラーメッセージを読んで理解できる必要があります。もしそれができないなら、この方法を試すのはやめて、代わりに `binary-install`_ に従ってください。
+あなたは extension のビルドのトラブルシューティングが **できなければいけません**。たとえば、あなたはコンパイラのエラーメッセージを読んで理解できる必要があります。もしそれができないなら、この方法を試すのはやめて、代わりに `binary-installation`_ に従ってください。
 
 ..
     If your build prerequisites are in place you can run::
@@ -197,38 +197,62 @@ psycopg 3 を使用して開発を始める最も早い方法は、次のよう�
 
     pip install "psycopg[c]"
 
+..
+    .. _pure-python-installation:
+
+    Pure Python installation
+    ------------------------
+
 .. _pure-python-installation:
 
-Pure Python installation
-------------------------
+純粋な Python インストール
+--------------------------
 
-If you simply install::
+..
+    If you simply install::
+
+単純に以下のコマンドでインストールした場合
+
+.. code:: shell
 
     pip install psycopg
 
-without ``[c]`` or ``[binary]`` extras you will obtain a pure Python
-implementation. This is particularly handy to debug and hack, but it still
-requires the system libpq to operate (which will be imported dynamically via
-`ctypes`).
+..
+    without ``[c]`` or ``[binary]`` extras you will obtain a pure Python
+    implementation. This is particularly handy to debug and hack, but it still
+    requires the system libpq to operate (which will be imported dynamically via
+    `ctypes`).
 
-In order to use the pure Python installation you will need the ``libpq``
-installed in the system: for instance on Debian system you will probably
-need::
+extras に ``[c]`` や ``[binary]`` を指定しなければ、純粋な Python 実装が取得されます。これは特にデバッグやハックのためには便利ですが、操作するためには依然としてシステム上に libpq が必要です (`ctypes` 経由で動的にインポートされます)。
+
+..
+    In order to use the pure Python installation you will need the ``libpq``
+    installed in the system: for instance on Debian system you will probably
+    need::
+
+純粋な Python インストールを使用するためには、``libpq`` がシステムにインストールされている必要があります。たとえば、Debian システムではおそらく以下のコマンドを実行する必要があります。
+
+.. code:: shell
 
     sudo apt install libpq5
 
+..
+    .. note::
+
+        The ``libpq`` is the client library used by :program:`psql`, the
+        PostgreSQL command line client, to connect to the database.  On most
+        systems, installing :program:`psql` will install the ``libpq`` too as a
+        dependency.
+
 .. note::
 
-    The ``libpq`` is the client library used by :program:`psql`, the
-    PostgreSQL command line client, to connect to the database.  On most
-    systems, installing :program:`psql` will install the ``libpq`` too as a
-    dependency.
+    ``libpq`` は、PostgreSQL コマンドラインクライアントの :program:`psql` がデータベースに接続するために使用するクライアントライブラリです。ほとんどのシステムでは、:program:`psql` をインストールすると依存関係として ``libpq`` もインストールされます。
 
 ..
     If you are not able to fulfill this requirement please follow the `binary
     installation`_.
 
-If you are not able to fulfill this requirement please follow the `binary-install`_.
+この要件を満たせない場合は、`binary-installation`_ に従ってください。
 
 ..
     .. _pool-installation:
