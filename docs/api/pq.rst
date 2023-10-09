@@ -21,10 +21,15 @@ structures.
 The low-level functions of the library are exposed by the objects in the
 `!psycopg.pq` module.
 
+..
+    .. _pq-impl:
+
+    ``pq`` module implementations
+    -----------------------------
 
 .. _pq-impl:
 
-``pq`` module implementations
+``pq`` モジュールの実装
 -----------------------------
 
 There are actually several implementations of the module, all offering the

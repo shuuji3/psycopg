@@ -265,37 +265,61 @@ extras に ``[c]`` や ``[binary]`` を指定しなければ、純粋な Python 
 コネクションプールのインストール
 --------------------------------
 
-The :ref:`Psycopg connection pools <connection-pools>` are distributed in a
-separate package from the `!psycopg` package itself, in order to allow a
-different release cycle.
+..
+    The :ref:`Psycopg connection pools <connection-pools>` are distributed in a
+    separate package from the `!psycopg` package itself, in order to allow a
+    different release cycle.
 
-In order to use the pool you must install the ``pool`` extra, using ``pip
-install "psycopg[pool]"``, or install the `psycopg_pool` package separately,
-which would allow to specify the release to install more precisely.
+:ref:`Psycopg のコネクション プール <connection-pools>` は、異なるリリースサイクルを可能にするために、`!psycopg` パッケージ自体とは独立して配布されています。
 
+..
+    In order to use the pool you must install the ``pool`` extra, using ``pip
+    install "psycopg[pool]"``, or install the `psycopg_pool` package separately,
+    which would allow to specify the release to install more precisely.
 
-Handling dependencies
+プールを使用するためには、``pip install "psycopg[pool]"`` コマンドを実行して ``pool`` extra をインストールするか、`psycopg_pool` パッケージを別にインストールする必要があります。`psycopg_pool` を使用するとインストールするリリースをより詳細に指定できます。
+
+..
+    Handling dependencies
+    ---------------------
+
+依存関係の処理
 ---------------------
 
-If you need to specify your project dependencies (for instance in a
-``requirements.txt`` file, ``setup.py``, ``pyproject.toml`` dependencies...)
-you should probably specify one of the following:
+..
+    If you need to specify your project dependencies (for instance in a
+    ``requirements.txt`` file, ``setup.py``, ``pyproject.toml`` dependencies...)
+    you should probably specify one of the following:
 
-- If your project is a library, add a dependency on ``psycopg``. This will
-  make sure that your library will have the ``psycopg`` package with the right
-  interface and leaves the possibility of choosing a specific implementation
-  to the end user of your library.
+プロジェクトの依存関係を指定する必要がある場合 (たとえば、``requirements.txt``、``setup.py``、``pyproject.toml`` ファイルの依存関係として)、おそらく以下のいずれか1つを指定する必要があります。
 
-- If your project is a final application (e.g. a service running on a server)
-  you can require a specific implementation, for instance ``psycopg[c]``,
-  after you have made sure that the prerequisites are met (e.g. the depending
-  libraries and tools are installed in the host machine).
+..
+    - If your project is a library, add a dependency on ``psycopg``. This will
+      make sure that your library will have the ``psycopg`` package with the right
+      interface and leaves the possibility of choosing a specific implementation
+      to the end user of your library.
 
-In both cases you can specify which version of Psycopg to use using
-`requirement specifiers`__.
+- プロジェクトがライブラリである場合、``psycopg`` を依存関係として追加する。これにより、ライブラリが正しいインターフェイスを持つ ``psycopg`` パッケージをインストールし、ライブラリのエンドユーザーに特定の実装を選択できる可能性を残せます。
+
+..
+    - If your project is a final application (e.g. a service running on a server)
+      you can require a specific implementation, for instance ``psycopg[c]``,
+      after you have made sure that the prerequisites are met (e.g. the depending
+      libraries and tools are installed in the host machine).
+
+- プロジェクトが最終的なアプリケーションである場合 (たとえば、サーバー上で実行されるサービスなど)、前提条件が満たされていることを確認した後 (たとえば、依存ライブラリとツールがホストマシンにインストールされていることなど)、``psycopg[c]`` などの特定の実装を要求できます。
+
+..
+    In both cases you can specify which version of Psycopg to use using
+    `requirement specifiers`__.
+
+いずれの場合でも、`requirement specifiers`__ を利用することで、使用する psycopg のバージョンを指定できます。
 
 .. __: https://pip.pypa.io/en/stable/cli/pip_install/#requirement-specifiers
 
-If you want to make sure that a specific implementation is used you can
-specify the :envvar:`PSYCOPG_IMPL` environment variable: importing the library
-will fail if the implementation specified is not available. See :ref:`pq-impl`.
+..
+    If you want to make sure that a specific implementation is used you can
+    specify the :envvar:`PSYCOPG_IMPL` environment variable: importing the library
+    will fail if the implementation specified is not available. See :ref:`pq-impl`.
+
+特定の実装が使用されることを保証したい場合、:envvar:`PSYCOPG_IMPL` 環境変数を指定できます。これにより、指定された実装が利用できない場合にライブラリのインポートが失敗するようになります。詳しくは :ref:`pq-impl` 参照してください。
