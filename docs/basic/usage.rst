@@ -1,4 +1,5 @@
 .. currentmodule:: psycopg
+
 ..
     .. _module-usage:
 
@@ -10,35 +11,85 @@
 モジュールの基本的な使用方法
 ============================
 
-The basic Psycopg usage is common to all the database adapters implementing
-the `DB-API`__ protocol. Other database adapters, such as the builtin
-`sqlite3` or `psycopg2`, have roughly the same pattern of interaction.
+..
+    The basic Psycopg usage is common to all the database adapters implementing
+    the `DB-API`__ protocol. Other database adapters, such as the builtin
+    `sqlite3` or `psycopg2`, have roughly the same pattern of interaction.
+
+psycopg の基本的な使用方法は、`DB-API`__ プロトコルを実装しているすべてのデータべース アダプターと共通するものです。`sqlite3` や `psycopg2` などの他のデータベース アダプターには、おおよそ同じ対話のパターンがあります。
 
 .. __: https://www.python.org/dev/peps/pep-0249/
-
 
 .. index::
     pair: Example; Usage
 
+..
+    .. _usage:
+
+    Main objects in Psycopg 3
+    -------------------------
+
 .. _usage:
 
-Main objects in Psycopg 3
--------------------------
+psycopg 3 のメイン オブジェクト
+-------------------------------
 
-Here is an interactive session showing some of the basic commands:
+..
+    Here is an interactive session showing some of the basic commands:
+
+次に示すのは、基本的なコマンドの一部を表示している対話セッションです。
+
+..
+    .. code:: python
+
+        # Note: the module name is psycopg, not psycopg3
+        import psycopg
+
+        # Connect to an existing database
+        with psycopg.connect("dbname=test user=postgres") as conn:
+
+            # Open a cursor to perform database operations
+            with conn.cursor() as cur:
+
+                # Execute a command: this creates a new table
+                cur.execute("""
+                    CREATE TABLE test (
+                        id serial PRIMARY KEY,
+                        num integer,
+                        data text)
+                    """)
+
+                # Pass data to fill a query placeholders and let Psycopg perform
+                # the correct conversion (no SQL injections!)
+                cur.execute(
+                    "INSERT INTO test (num, data) VALUES (%s, %s)",
+                    (100, "abc'def"))
+
+                # Query the database and obtain data as Python objects.
+                cur.execute("SELECT * FROM test")
+                cur.fetchone()
+                # will return (1, 100, "abc'def")
+
+                # You can use `cur.fetchmany()`, `cur.fetchall()` to return a list
+                # of several records, or even iterate on the cursor
+                for record in cur:
+                    print(record)
+
+                # Make the changes to the database persistent
+                conn.commit()
 
 .. code:: python
 
-    # Note: the module name is psycopg, not psycopg3
+    # メモ: モジュール名は psycopg3 ではなく psycopg
     import psycopg
 
-    # Connect to an existing database
+    # 既存のデータベースに接続する
     with psycopg.connect("dbname=test user=postgres") as conn:
 
-        # Open a cursor to perform database operations
+        # データベースの操作を実行するカーソルをオープンする
         with conn.cursor() as cur:
 
-            # Execute a command: this creates a new table
+            # コマンドの実行: 新しいテーブルを作成する
             cur.execute("""
                 CREATE TABLE test (
                     id serial PRIMARY KEY,
@@ -46,62 +97,87 @@ Here is an interactive session showing some of the basic commands:
                     data text)
                 """)
 
-            # Pass data to fill a query placeholders and let Psycopg perform
-            # the correct conversion (no SQL injections!)
+            # クエリのプレースホルダーを埋めるためにデータを渡して
+            # psycopg に正しい変換を行わせる (SQL インジェクションなし！)
             cur.execute(
                 "INSERT INTO test (num, data) VALUES (%s, %s)",
                 (100, "abc'def"))
 
-            # Query the database and obtain data as Python objects.
+            # データベースにクエリし、データを Python オブジェクトとして取得する
             cur.execute("SELECT * FROM test")
             cur.fetchone()
-            # will return (1, 100, "abc'def")
+            # これは (1, 100, "abc'def") を返す
 
-            # You can use `cur.fetchmany()`, `cur.fetchall()` to return a list
-            # of several records, or even iterate on the cursor
+            # `cur.fetchmany()` や `cur.fetchall()` を使用して複数のレコードのリストを返したり
+            # または、カーソルをイテレートすることもできる
             for record in cur:
                 print(record)
 
-            # Make the changes to the database persistent
+            # データベースへの変更を永続化する
             conn.commit()
 
+..
+    In the example you can see some of the main objects and methods and how they
+    relate to each other:
 
-In the example you can see some of the main objects and methods and how they
-relate to each other:
+この例では、メインオブジェクトとメソッドの一部と、それらが互いにどう関係しているのかがわかります。
 
-- The function `~Connection.connect()` creates a new database session and
-  returns a new `Connection` instance. `AsyncConnection.connect()`
-  creates an `asyncio` connection instead.
+..
+    - The function `~Connection.connect()` creates a new database session and
+      returns a new `Connection` instance. `AsyncConnection.connect()`
+      creates an `asyncio` connection instead.
 
-- The `~Connection` class encapsulates a database session. It allows to:
+- 関数 `~Connection.connect()` は、新しいデータベース セッションを作成し、新しい `Connection` インスタンスを返します。`AsyncConnection.connect()` は、代わりに `asyncio` コネクションを返します。
 
-  - create new `~Cursor` instances using the `~Connection.cursor()` method to
-    execute database commands and queries,
+..
+    - The `~Connection` class encapsulates a database session. It allows to:
 
-  - terminate transactions using the methods `~Connection.commit()` or
-    `~Connection.rollback()`.
+      - create new `~Cursor` instances using the `~Connection.cursor()` method to
+        execute database commands and queries,
 
-- The class `~Cursor` allows interaction with the database:
+      - terminate transactions using the methods `~Connection.commit()` or
+        `~Connection.rollback()`.
 
-  - send commands to the database using methods such as `~Cursor.execute()`
-    and `~Cursor.executemany()`,
+- `~Connection` クラスはデータベースセッションをカプセル化していて、これを使用して次のことができます。
 
-  - retrieve data from the database, iterating on the cursor or using methods
-    such as `~Cursor.fetchone()`, `~Cursor.fetchmany()`, `~Cursor.fetchall()`.
+  - `~Connection.cursor()` メソッドを使用して、データベースコマンドとクエリを実行するための新しい `~Cursor` インスタンスを作成できます。
 
-- Using these objects as context managers (i.e. using `!with`) will make sure
-  to close them and free their resources at the end of the block (notice that
-  :ref:`this is different from psycopg2 <diff-with>`).
+  - `~Connection.commit()` や `~Connection.rollback()` メソッドを使用してトランザクションを終端できます。
 
+..
+    - The class `~Cursor` allows interaction with the database:
+
+      - send commands to the database using methods such as `~Cursor.execute()`
+        and `~Cursor.executemany()`,
+
+      - retrieve data from the database, iterating on the cursor or using methods
+        such as `~Cursor.fetchone()`, `~Cursor.fetchmany()`, `~Cursor.fetchall()`.
+
+- `~Cursor` クラスを使用すると、次のようにデータベースとの対話ができます。
+
+  - `~Cursor.execute()` や `~Cursor.executemany()` などのメソッドを使用して、データベースにコマンドを送れます。
+
+  - カーソル上でイテレートしたり、`~Cursor.fetchone()`、`~Cursor.fetchmany()`、`~Cursor.fetchall()` などのメソッドを使用したりして、データベースからデータを取得できます。
+
+..
+    - Using these objects as context managers (i.e. using `!with`) will make sure
+      to close them and free their resources at the end of the block (notice that
+      :ref:`this is different from psycopg2 <diff-with>`).
+
+- これらのオブジェクトをコンテクスト マネージャとして使用することで (つまり `!with` を使用することで)、オブジェクトを確実にクローズしてオブジェクトのリソースをブロックの最後で開放できる (:ref:`これは psycopg2 とは異なる <diff-with>` ことに注意してください)。
+
+..
+    .. seealso::
+
+        A few important topics you will have to deal with are:
 
 .. seealso::
 
-    A few important topics you will have to deal with are:
+    後に対処する必要になる重要なトピックがいくつかあります。
 
-    - :ref:`query-parameters`.
-    - :ref:`types-adaptation`.
-    - :ref:`transactions`.
-
+    - :ref:`query-parameters`
+    - :ref:`types-adaptation`
+    - :ref:`transactions`
 
 Shortcuts
 ---------
