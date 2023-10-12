@@ -533,9 +533,7 @@ copy はファイルベースではなくなった
     returns an object to read/write data, block-wise or record-wise. The different
     usage pattern also enables :sql:`COPY` to be used in async interactions.
 
-There is now a single `~Cursor.copy()` method, which is similar to
-
-現在は、1つの `~Cursor.copy()` メソッドだけがあり、自由形式の :sql:`COPY` コマンドを受け取り、ブロック単位またはレコード単位のデータの読み込み/書き込みのためのオブジェクトを返すという点で `!psycopg2` の `!copy_expert()` に似ています。異なる使用パターンにより、:sql:`COPY` を非同期の対話でも使用することもできます。
+現在は、1つの `~Cursor.copy()` メソッドだけがあります。このメソッドは、自由形式の :sql:`COPY` コマンドを受け取り、ブロック単位またはレコード単位のデータの読み込み/書き込みのためのオブジェクトを返すという点で `!psycopg2` の `!copy_expert()` に似ています。異なる使用パターンにより、:sql:`COPY` を非同期の対話でも使用することもできます。
 
 ..
     .. seealso:: See :ref:`copy` for the details.
