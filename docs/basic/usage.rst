@@ -179,15 +179,25 @@ psycopg 3 のメイン オブジェクト
     - :ref:`types-adaptation`
     - :ref:`transactions`
 
-Shortcuts
----------
+..
+    Shortcuts
+    ---------
 
-The pattern above is familiar to `!psycopg2` users. However, Psycopg 3 also
-exposes a few simple extensions which make the above pattern leaner:
+ショートカット
+--------------
 
-- the `Connection` objects exposes an `~Connection.execute()` method,
-  equivalent to creating a cursor, calling its `~Cursor.execute()` method, and
-  returning it.
+..
+    The pattern above is familiar to `!psycopg2` users. However, Psycopg 3 also
+    exposes a few simple extensions which make the above pattern leaner:
+
+上記のパターンは `!psycopg2` ユーザーには馴染みのあるものです。しかし、psycopg 3 は上記のパターンをより簡潔にするシンプルな拡張もいくつか公開しています。
+
+..
+    - the `Connection` objects exposes an `~Connection.execute()` method,
+      equivalent to creating a cursor, calling its `~Cursor.execute()` method, and
+      returning it.
+
+- `Connection` オブジェクトは、`~Cursor.execute()` メソッドを呼び出して返すカーソルの作成に相当する `~Connection.execute()` メソッドを公開しています。
 
   .. code::
 
@@ -198,8 +208,11 @@ exposes a few simple extensions which make the above pattern leaner:
       # In Psycopg 3
       cur = conn.execute(...)
 
-- The `Cursor.execute()` method returns `!self`. This means that you can chain
-  a fetch operation, such as `~Cursor.fetchone()`, to the `!execute()` call:
+..
+    - The `Cursor.execute()` method returns `!self`. This means that you can chain
+      a fetch operation, such as `~Cursor.fetchone()`, to the `!execute()` call:
+
+- `Cursor.execute()` メソッドは `!self` を返します。つまり、`~Cursor.fetchone()` などの fetch 操作を `!execute()` の呼び出しにチェーンできます。
 
   .. code::
 
@@ -217,42 +230,80 @@ exposes a few simple extensions which make the above pattern leaner:
       for record in cur.execute(...):
           ...
 
-Using them together, in simple cases, you can go from creating a connection to
-using a result in a single expression:
+..
+    Using them together, in simple cases, you can go from creating a connection to
+    using a result in a single expression:
+
+単純なケースでは、これらを一緒に使うことで、コネクションの作成から1つの式の結果の使用までが実行できます。
 
 .. code::
 
     print(psycopg.connect(DSN).execute("SELECT now()").fetchone()[0])
     # 2042-07-12 18:15:10.706497+01:00
 
+..
+    .. index::
+        pair: Connection; `!with`
+
+    .. _with-connection:
+
+    Connection context
+    ------------------
 
 .. index::
     pair: Connection; `!with`
 
 .. _with-connection:
 
-Connection context
-------------------
+コネクション コンテクスト
+----------------------
 
-Psycopg 3 `Connection` can be used as a context manager:
+..
+    Psycopg 3 `Connection` can be used as a context manager:
+
+psycopg 3 の `Connection` はコンテクスト マネージャとして使用できます。
+
+..
+    .. code:: python
+
+        with psycopg.connect() as conn:
+            ... # use the connection
+
+        # the connection is now closed
 
 .. code:: python
 
     with psycopg.connect() as conn:
-        ... # use the connection
+        ... # コネクションを使用する
 
-    # the connection is now closed
+    # ここでコネクションは閉じられている
 
-When the block is exited, if there is a transaction open, it will be
-committed. If an exception is raised within the block the transaction is
-rolled back. In both cases the connection is closed. It is roughly the
-equivalent of:
+..
+    When the block is exited, if there is a transaction open, it will be
+    committed. If an exception is raised within the block the transaction is
+    rolled back. In both cases the connection is closed. It is roughly the
+    equivalent of:
+
+ブロックを出るときに、トランザクションがオープンであれば、そのトランザクションはコミットされます。ブロック内で例外が発生した場合、トランザクションはロールバックされます。どちらの場合もコネクションはクローズされます。これはおおよそ次のコードと同等です。
+
+..
+    .. code:: python
+
+        conn = psycopg.connect()
+        try:
+            ... # use the connection
+        except BaseException:
+            conn.rollback()
+        else:
+            conn.commit()
+        finally:
+            conn.close()
 
 .. code:: python
 
     conn = psycopg.connect()
     try:
-        ... # use the connection
+        ... # コネクションを使用する
     except BaseException:
         conn.rollback()
     else:
@@ -260,40 +311,57 @@ equivalent of:
     finally:
         conn.close()
 
-.. note::
-    This behaviour is not what `!psycopg2` does: in `!psycopg2` :ref:`there is
-    no final close() <pg2:with>` and the connection can be used in several
-    `!with` statements to manage different transactions. This behaviour has
-    been considered non-standard and surprising so it has been replaced by the
-    more explicit `~Connection.transaction()` block.
+..
+    .. note::
+        This behaviour is not what `!psycopg2` does: in `!psycopg2` :ref:`there is
+        no final close() <pg2:with>` and the connection can be used in several
+        `!with` statements to manage different transactions. This behaviour has
+        been considered non-standard and surprising so it has been replaced by the
+        more explicit `~Connection.transaction()` block.
 
-Note that, while the above pattern is what most people would use, `connect()`
-doesn't enter a block itself, but returns an "un-entered" connection, so that
-it is still possible to use a connection regardless of the code scope and the
-developer is free to use (and responsible for calling) `~Connection.commit()`,
-`~Connection.rollback()`, `~Connection.close()` as and where needed.
+.. note::
+    この動作は `!psycopg2` の動作とは異なります。`!psycopg2` では、:ref:`最後の close() は存在せず <pg2:with>`、コネクションは異なるトランザクションを管理するために複数の `!with` ステートメントで使用できます。この動作は非標準でユーザーを驚かせるものだと考えられてきたため、より明示的な `~Connection.transaction()` ブロックと置換されました。
+
+..
+    Note that, while the above pattern is what most people would use, `connect()`
+    doesn't enter a block itself, but returns an "un-entered" connection, so that
+    it is still possible to use a connection regardless of the code scope and the
+    developer is free to use (and responsible for calling) `~Connection.commit()`,
+    `~Connection.rollback()`, `~Connection.close()` as and where needed.
+
+上記のパターンはほとんどの人が使うものですが、`connect()` がブロック自体に入るわけではなく、入る前のコネクション ("un-entered" connection) を返すことに注意してください。そのため、コネクションはコードのスコープに関わらずまだ使える可能性があり、開発者は必要なときに必要に応じて `~Connection.commit()`、`~Connection.rollback()`、`~Connection.close()` を自由に使えます (そして、開発者にはそれらを呼び出す責任があります)。
+
+..
+    .. warning::
+        If a connection is just left to go out of scope, the way it will behave
+        with or without the use of a `!with` block is different:
+
+        - if the connection is used without a `!with` block, the server will find
+          a connection closed INTRANS and roll back the current transaction;
+
+        - if the connection is used with a `!with` block, there will be an
+          explicit COMMIT and the operations will be finalised.
+
+        You should use a `!with` block when your intention is just to execute a
+        set of operations and then committing the result, which is the most usual
+        thing to do with a connection. If your connection life cycle and
+        transaction pattern is different, and want more control on it, the use
+        without `!with` might be more convenient.
+
+        See :ref:`transactions` for more information.
 
 .. warning::
-    If a connection is just left to go out of scope, the way it will behave
-    with or without the use of a `!with` block is different:
+    コネクションがそのままスコープ外に残された場合、`!with` ブロックを使用する場合と使用しない場合でその動作方法は異なります。
 
-    - if the connection is used without a `!with` block, the server will find
-      a connection closed INTRANS and roll back the current transaction;
+    - コネクションが `!with` ブロックなしで使用された場合、サーバーは INTRANS で閉じられたコネクションを探して現在のトランザクションをロールバックします。
 
-    - if the connection is used with a `!with` block, there will be an
-      explicit COMMIT and the operations will be finalised.
+    - コネクションが `!with` ブロックとともに使用された場合、明示的な COMMIT があり、操作はファイナライズされます。
 
-    You should use a `!with` block when your intention is just to execute a
-    set of operations and then committing the result, which is the most usual
-    thing to do with a connection. If your connection life cycle and
-    transaction pattern is different, and want more control on it, the use
-    without `!with` might be more convenient.
+    もし一連の操作をただ実行して、そして結果をコミットすることを意図しているのなら、`!with` ブロックを使うべきです。これはコネクションを使用して行う最も一般的な操作です。コネクションのライフサイクルとトランザクションのパターンが異なり、コネクションをよりコントロールしたい場合には、`!with` なしに使用するほうがより便利なことがあるかもしれません。
 
-    See :ref:`transactions` for more information.
+    より詳しい情報については :ref:`transactions` を参照してください。
 
-`AsyncConnection` can be also used as context manager, using ``async with``,
-but be careful about its quirkiness: see :ref:`async-with` for details.
-
+`AsyncConnection` も ``async with`` を使用してコンテクスト マネージャとして使用できますが、変わった振る舞いをするため注意してください。詳細は :ref:`async-with` を参照してください。
 
 Adapting pyscopg to your program
 --------------------------------
