@@ -363,19 +363,35 @@ psycopg 3 の `Connection` はコンテクスト マネージャとして使用�
 
 `AsyncConnection` も ``async with`` を使用してコンテクスト マネージャとして使用できますが、変わった振る舞いをするため注意してください。詳細は :ref:`async-with` を参照してください。
 
-Adapting pyscopg to your program
+..
+    Adapting pyscopg to your program
+    --------------------------------
+
+psycopg をプログラムに適応させる
 --------------------------------
 
-The above :ref:`pattern of use <usage>` only shows the default behaviour of
-the adapter. Psycopg can be customised in several ways, to allow the smoothest
-integration between your Python program and your PostgreSQL database:
+..
+    The above :ref:`pattern of use <usage>` only shows the default behaviour of
+    the adapter. Psycopg can be customised in several ways, to allow the smoothest
+    integration between your Python program and your PostgreSQL database:
 
-- If your program is concurrent and based on `asyncio` instead of on
-  threads/processes, you can use :ref:`async connections and cursors <async>`.
+上記の :ref:`使用パターン <usage>` はアダプターのデフォルトの動作を示したに過ぎません。psycopg は複数の方法でカスタマイズして、Python プログラムと PostgreSQL データベース間で最もスムーズなインテグレーションができるようになります。
 
-- If you want to customise the objects that the cursor returns, instead of
-  receiving tuples, you can specify your :ref:`row factories <row-factories>`.
+..
+    - If your program is concurrent and based on `asyncio` instead of on
+      threads/processes, you can use :ref:`async connections and cursors <async>`.
 
-- If you want to customise how Python values and PostgreSQL types are mapped
-  into each other, beside the :ref:`basic type mapping <types-adaptation>`,
-  you can :ref:`configure your types <adaptation>`.
+- プログラムが並行で スレッド/プロセスの代わりに `asyncio` を元にしている場合、:ref:`async のコネクションとカーソル <async>` が利用できます。
+
+..
+    - If you want to customise the objects that the cursor returns, instead of
+      receiving tuples, you can specify your :ref:`row factories <row-factories>`.
+
+- カーソルが返すオブジェクトをタプルを受け取るのではなくカスタマイズしたい場合、:ref:`行ファクトリ <row-factories>` を指定できます。
+
+..
+    - If you want to customise how Python values and PostgreSQL types are mapped
+      into each other, beside the :ref:`basic type mapping <types-adaptation>`,
+      you can :ref:`configure your types <adaptation>`.
+
+- Python の値と PostgreSQL の型を相互にマッピングする方法をカスタマイズしたい場合、:ref:`基本的な型のマッピング <types-adaptation>` に加えて、:ref:`独自の型を設定 <adaptation>` できます。
