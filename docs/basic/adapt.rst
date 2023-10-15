@@ -16,33 +16,67 @@
 Python の基本型に適応する
 ===========================
 
-Many standard Python types are adapted into SQL and returned as Python
-objects when a query is executed.
+..
+    Many standard Python types are adapted into SQL and returned as Python
+    objects when a query is executed.
 
-Converting the following data types between Python and PostgreSQL works
-out-of-the-box and doesn't require any configuration. In case you need to
-customise the conversion you should take a look at :ref:`adaptation`.
+多くの標準の Python 型は、クエリが実行されたときに SQL に適応され、Python オブジェクトを返します。
 
+..
+    Converting the following data types between Python and PostgreSQL works
+    out-of-the-box and doesn't require any configuration. In case you need to
+    customise the conversion you should take a look at :ref:`adaptation`.
+
+以下のデータ型の Python と PostgreSQL 間での変換は、はじめから動作するため、何の設定も必要ありません。変換をカスタマイズする必要がある場合には、:ref:`adaptation` を参照してください。
+
+..
+    .. index::
+        pair: Boolean; Adaptation
+
+    .. _adapt-bool:
+
+    Booleans adaptation
+    -------------------
 
 .. index::
     pair: Boolean; Adaptation
 
 .. _adapt-bool:
 
-Booleans adaptation
+ブール値の適応
 -------------------
 
-Python `bool` values `!True` and `!False` are converted to the equivalent
-`PostgreSQL boolean type`__::
+..
+    Python `bool` values `!True` and `!False` are converted to the equivalent
+    `PostgreSQL boolean type`__::
+
+Python の `bool` 値である `!True` と `!False` は、次のように同等の `PostgreSQL のブール型`__ に変換されます。
+
+.. code:: python
 
     >>> cur.execute("SELECT %s, %s", (True, False))
-    # equivalent to "SELECT true, false"
+    # "SELECT true, false" と同等
 
 .. __: https://www.postgresql.org/docs/current/datatype-boolean.html
 
-.. versionchanged:: 3.2
-    `numpy.bool_` values can be dumped too.
+..
+    .. versionchanged:: 3.2
+        `numpy.bool_` values can be dumped too.
 
+.. versionchanged:: 3.2
+    `numpy.bool_` の値もダンプできるようになりました。
+
+..
+    .. index::
+        single: Adaptation; numbers
+        single: Integer; Adaptation
+        single: Float; Adaptation
+        single: Decimal; Adaptation
+
+    .. _adapt-numbers:
+
+    Numbers adaptation
+    ------------------
 
 .. index::
     single: Adaptation; numbers
@@ -52,43 +86,64 @@ Python `bool` values `!True` and `!False` are converted to the equivalent
 
 .. _adapt-numbers:
 
-Numbers adaptation
-------------------
+数値の適応
+----------
 
 .. seealso::
 
     - `PostgreSQL numeric types
       <https://www.postgresql.org/docs/current/static/datatype-numeric.html>`__
 
-- Python `int` values can be converted to PostgreSQL :sql:`smallint`,
-  :sql:`integer`, :sql:`bigint`, or :sql:`numeric`, according to their numeric
-  value. Psycopg will choose the smallest data type available, because
-  PostgreSQL can automatically cast a type up (e.g. passing a `smallint` where
-  PostgreSQL expect an `integer` is gladly accepted) but will not cast down
-  automatically (e.g. if a function has an :sql:`integer` argument, passing it
-  a :sql:`bigint` value will fail, even if the value is 1).
+..
+    - Python `int` values can be converted to PostgreSQL :sql:`smallint`,
+      :sql:`integer`, :sql:`bigint`, or :sql:`numeric`, according to their numeric
+      value. Psycopg will choose the smallest data type available, because
+      PostgreSQL can automatically cast a type up (e.g. passing a `smallint` where
+      PostgreSQL expect an `integer` is gladly accepted) but will not cast down
+      automatically (e.g. if a function has an :sql:`integer` argument, passing it
+      a :sql:`bigint` value will fail, even if the value is 1).
 
-- Python `float` values are converted to PostgreSQL :sql:`float8`.
+- Python の `int` の値は、数値に応じて PostgreSQL の :sql:`smallint`、:sql:`integer`、:sql:`bigint`、:sql:`numeric` のいずれかに変換できます。psycopg は利用できる最も小さなデータ型を選択します。PostgreSQL は自動的に大きな型にキャスト アップできる一方 (たとえば、PostgreSQL が `integer` を期待するところに `smallint` を渡すと喜んで受け取ってくれます)、小さな型に自動的にキャスト ダウンすることはないためです (たとえば、関数に :sql:`integer` 引数がある場合、たとえ値が 1 だったとしても、それを :sql:`bigint` の値に渡すと失敗します)。
 
-- Python `~decimal.Decimal` values are converted to PostgreSQL :sql:`numeric`.
+..
+    - Python `float` values are converted to PostgreSQL :sql:`float8`.
 
-On the way back, smaller types (:sql:`int2`, :sql:`int4`, :sql:`float4`) are
-promoted to the larger Python counterpart.
+- Python の `float` の値は PostgreSQL の :sql:`float8` に変換されます。
+
+..
+    - Python `~decimal.Decimal` values are converted to PostgreSQL :sql:`numeric`.
+
+- Python の `~decimal.Decimal` の値は PostgreSQL の :sql:`numeric` に変換されます。
+
+..
+    On the way back, smaller types (:sql:`int2`, :sql:`int4`, :sql:`float4`) are
+    promoted to the larger Python counterpart.
+
+レスポンス時には、小さな型 (:sql:`int2`、:sql:`int4`、:sql:`float4`) は、Python のより大きな対応する型に昇格されます。
+
+..
+    .. note::
+
+        Sometimes you may prefer to receive :sql:`numeric` data as `!float`
+        instead, for performance reason or ease of manipulation: you can configure
+        an adapter to :ref:`cast PostgreSQL numeric to Python float
+        <adapt-example-float>`. This of course may imply a loss of precision.
 
 .. note::
 
-    Sometimes you may prefer to receive :sql:`numeric` data as `!float`
-    instead, for performance reason or ease of manipulation: you can configure
-    an adapter to :ref:`cast PostgreSQL numeric to Python float
-    <adapt-example-float>`. This of course may imply a loss of precision.
+    性能上の理由や操作を簡単にするために、:sql:`numeric` のデータを代わりに `！float` として受け取りたい場合もあるかもしれません。その場合、:ref:`PostgreSQL の数値を Python の float にキャストする <adapt-example-float>` ためにアダプターを設定できます。この操作はもちろん、精度の劣化を引き起こしてしまいます。
+
+..
+    .. versionchanged:: 3.2
+
+       NumPy integer__ and `floating point`__ values can be dumped too.
 
 .. versionchanged:: 3.2
 
-   NumPy integer__ and `floating point`__ values can be dumped too.
+   NumPy の integer__ と `floating point`__ の値もダンプできるようになりました。
 
 .. __: https://numpy.org/doc/stable/reference/arrays.scalars.html#integer-types
 .. __: https://numpy.org/doc/stable/reference/arrays.scalars.html#floating-point-types
-
 
 .. index::
     pair: Strings; Adaptation
