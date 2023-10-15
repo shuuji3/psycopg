@@ -119,7 +119,7 @@ Python の `bool` 値である `!True` と `!False` は、次のように同等�
     On the way back, smaller types (:sql:`int2`, :sql:`int4`, :sql:`float4`) are
     promoted to the larger Python counterpart.
 
-レスポンス時には、小さな型 (:sql:`int2`、:sql:`int4`、:sql:`float4`) は、Python のより大きな対応する型に昇格されます。
+レスポンス時には、小さな型 (:sql:`int2`、:sql:`int4`、:sql:`float4`) は、対応する Python のより大きな型に昇格されます。
 
 ..
     .. note::
@@ -131,7 +131,7 @@ Python の `bool` 値である `!True` と `!False` は、次のように同等�
 
 .. note::
 
-    性能上の理由や操作を簡単にするために、:sql:`numeric` のデータを代わりに `！float` として受け取りたい場合もあるかもしれません。その場合、:ref:`PostgreSQL の数値を Python の float にキャストする <adapt-example-float>` ためにアダプターを設定できます。この操作はもちろん、精度の劣化を引き起こしてしまいます。
+    性能上の理由や操作を簡単にするために、:sql:`numeric` のデータを代わりに `!float` として受け取りたい場合もあるかもしれません。その場合、:ref:`PostgreSQL の数値を Python の float にキャストする <adapt-example-float>` ためにアダプターを設定できます。この操作はもちろん、精度の劣化を引き起こしてしまいます。
 
 ..
     .. versionchanged:: 3.2
