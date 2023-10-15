@@ -1,0 +1,2 @@
+matplotlib
+git+https://github.com/shuuji3/sphinxext-opengraph@feat/support-ogp-social-cards-font-option
