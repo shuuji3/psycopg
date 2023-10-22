@@ -150,18 +150,33 @@ Python の `bool` 値である `!True` と `!False` は、次のように同等�
     single: Unicode; Adaptation
     pair: Encoding; SQL_ASCII
 
+..
+    .. _adapt-string:
+
+    Strings adaptation
+    ------------------
+
 .. _adapt-string:
 
-Strings adaptation
+文字列の適応
 ------------------
+
+..
+    .. seealso::
+
+        - `PostgreSQL character types
+          <https://www.postgresql.org/docs/current/datatype-character.html>`__
 
 .. seealso::
 
-    - `PostgreSQL character types
+    - `PostgreSQL の文字型
       <https://www.postgresql.org/docs/current/datatype-character.html>`__
 
-Python `str` are converted to PostgreSQL string syntax, and PostgreSQL types
-such as :sql:`text` and :sql:`varchar` are converted back to Python `!str`:
+..
+    Python `str` are converted to PostgreSQL string syntax, and PostgreSQL types
+    such as :sql:`text` and :sql:`varchar` are converted back to Python `!str`:
+
+Python の `str` は PostgreSQL の文字列構文に変換され、PostgreSQL の :sql:`text` や :sql:`varchar` などの型は Python の `!str` に再度変換されます。
 
 .. code:: python
 
@@ -172,29 +187,52 @@ such as :sql:`text` and :sql:`varchar` are converted back to Python `!str`:
     conn.execute("SELECT entry FROM menu WHERE id = 1").fetchone()[0]
     'Crème Brûlée at 4.99€'
 
-PostgreSQL databases `have an encoding`__, and `the session has an encoding`__
-too, exposed in the `!Connection.info.`\ `~ConnectionInfo.encoding`
-attribute. If your database and connection are in UTF-8 encoding you will
-likely have no problem, otherwise you will have to make sure that your
-application only deals with the non-ASCII chars that the database can handle;
-failing to do so may result in encoding/decoding errors:
+..
+    PostgreSQL databases `have an encoding`__, and `the session has an encoding`__
+    too, exposed in the `!Connection.info.`\ `~ConnectionInfo.encoding`
+    attribute. If your database and connection are in UTF-8 encoding you will
+    likely have no problem, otherwise you will have to make sure that your
+    application only deals with the non-ASCII chars that the database can handle;
+    failing to do so may result in encoding/decoding errors:
+
+PostgreSQL データベースには `エンコーディングがあり`__、`セッションにもエンコーディングがあります`__。これらは`!Connection.info.`\ `~ConnectionInfo.encoding` 属性で公開されています。データベースとコネクションが UTF-8 エンコーディングの場合、おそらく何も問題はないでしょう。それ以外のエンコーディングを使用している場合、アプリケーションがデータベースが処理できる non-ASCII 文字だけを扱うことを保証する必要があります。正しく扱わなかった場合、エンコード/デコードでエラーが発生してしまうかもしれません。
 
 .. __: https://www.postgresql.org/docs/current/sql-createdatabase.html
 .. __: https://www.postgresql.org/docs/current/multibyte.html
 
+..
+    .. code:: python
+
+        # The encoding is set at connection time according to the db configuration
+        conn.info.encoding
+        'utf-8'
+
+        # The Latin-9 encoding can manage some European accented letters
+        # and the Euro symbol
+        conn.execute("SET client_encoding TO LATIN9")
+        conn.execute("SELECT entry FROM menu WHERE id = 1").fetchone()[0]
+        'Crème Brûlée at 4.99€'
+
+        # The Latin-1 encoding doesn't have a representation for the Euro symbol
+        conn.execute("SET client_encoding TO LATIN1")
+        conn.execute("SELECT entry FROM menu WHERE id = 1").fetchone()[0]
+        # Traceback (most recent call last)
+        # ...
+        # UntranslatableCharacter: character with byte sequence 0xe2 0x82 0xac
+        # in encoding "UTF8" has no equivalent in encoding "LATIN1"
+
 .. code:: python
 
-    # The encoding is set at connection time according to the db configuration
+    # エンコーディングは、データベース設定にしたがってコネクション時に設定されます
     conn.info.encoding
     'utf-8'
 
-    # The Latin-9 encoding can manage some European accented letters
-    # and the Euro symbol
+    # Latin-9 エンコーディングは一部のヨーロッパ系言語のアクセント付き文字とユーロ記号を管理できます
     conn.execute("SET client_encoding TO LATIN9")
     conn.execute("SELECT entry FROM menu WHERE id = 1").fetchone()[0]
     'Crème Brûlée at 4.99€'
 
-    # The Latin-1 encoding doesn't have a representation for the Euro symbol
+    # Latin-1 エンコーディングにはユーロ記号に対応する表現がありません
     conn.execute("SET client_encoding TO LATIN1")
     conn.execute("SELECT entry FROM menu WHERE id = 1").fetchone()[0]
     # Traceback (most recent call last)
@@ -202,9 +240,12 @@ failing to do so may result in encoding/decoding errors:
     # UntranslatableCharacter: character with byte sequence 0xe2 0x82 0xac
     # in encoding "UTF8" has no equivalent in encoding "LATIN1"
 
-In rare cases you may have strings with unexpected encodings in the database.
-Using the ``SQL_ASCII`` client encoding  will disable decoding of the data
-coming from the database, which will be returned as `bytes`:
+..
+    In rare cases you may have strings with unexpected encodings in the database.
+    Using the ``SQL_ASCII`` client encoding  will disable decoding of the data
+    coming from the database, which will be returned as `bytes`:
+
+稀なケースでは、予期しないエンコーディングの文字列がデータベースに保存されているかもしれません。``SQL_ASCII`` クライアントエンコーディングを使用すると、データベースから送られてきたデータのデコードを無効化して、`bytes` を返せます。
 
 .. code:: python
 
@@ -212,13 +253,18 @@ coming from the database, which will be returned as `bytes`:
     conn.execute("SELECT entry FROM menu WHERE id = 1").fetchone()[0]
     b'Cr\xc3\xa8me Br\xc3\xbbl\xc3\xa9e at 4.99\xe2\x82\xac'
 
-Alternatively you can cast the unknown encoding data to :sql:`bytea` to
-retrieve it as bytes, leaving other strings unaltered: see :ref:`adapt-binary`
+..
+    Alternatively you can cast the unknown encoding data to :sql:`bytea` to
+    retrieve it as bytes, leaving other strings unaltered: see :ref:`adapt-binary`
 
-Note that PostgreSQL text cannot contain the ``0x00`` byte. If you need to
-store Python strings that may contain binary zeros you should use a
-:sql:`bytea` field.
+代わりに、未知のエンコーディングのデータを :sql:`bytea` にキャストして bytes として取得することもできます。これにより、他の文字列は変換せずにすみます。詳細は :ref:`adapt-binary` を参照してください。
 
+..
+    Note that PostgreSQL text cannot contain the ``0x00`` byte. If you need to
+    store Python strings that may contain binary zeros you should use a
+    :sql:`bytea` field.
+
+PostgreSQL のテキストは ``0x00`` バイトを含めないことに注意してください。バイナリの 0 を含む Python 文字列を保存する必要がある場合、:sql:`bytea` フィールドを使う必要があります。
 
 .. index::
     single: bytea; Adaptation
@@ -227,22 +273,32 @@ store Python strings that may contain binary zeros you should use a
     single: memoryview; Adaptation
     single: Binary string
 
+..
+    .. _adapt-binary:
+    Binary adaptation
+    -----------------
+
 .. _adapt-binary:
 
-Binary adaptation
+バイナリの適応
 -----------------
 
-Python types representing binary objects (`bytes`, `bytearray`, `memoryview`)
-are converted by default to :sql:`bytea` fields. By default data received is
-returned as `!bytes`.
+..
+    Python types representing binary objects (`bytes`, `bytearray`, `memoryview`)
+    are converted by default to :sql:`bytea` fields. By default data received is
+    returned as `!bytes`.
 
-If you are storing large binary data in bytea fields (such as binary documents
-or images) you should probably use the binary format to pass and return
-values, otherwise binary data will undergo `ASCII escaping`__, taking some CPU
-time and more bandwidth. See :ref:`binary-data` for details.
+バイナリオブジェクトを表現する Python の型 (`bytes`、`bytearray`、`memoryview`) はデフォルトで :sql:`bytea` フィールドに変換されます。受信されたデータは、デフォルトでは `!bytes` として返されます。
+
+..
+    If you are storing large binary data in bytea fields (such as binary documents
+    or images) you should probably use the binary format to pass and return
+    values, otherwise binary data will undergo `ASCII escaping`__, taking some CPU
+    time and more bandwidth. See :ref:`binary-data` for details.
+
+大きなバイナリデータ (バイナリドキュメントや画像など) を bytea フィールドに保存する場合、おそらくバイナリ形式を使用して値を渡したり返したりする必要があるでしょう。そうしなればバイナリデータに `ASCII エスケーピング`__ が行われ、ある程度の CPU 時間とより大きなバンド幅が消費されてしまいます。詳細は、:ref:`binary-data` を参照してください。
 
 .. __: https://www.postgresql.org/docs/current/datatype-binary.html
-
 
 .. _adapt-date:
 
