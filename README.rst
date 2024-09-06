@@ -7,7 +7,7 @@ Psycopg 3 ― PostgreSQL database adapter for Python documentation Japanese tran
 
 Psycopg 3 is a modern implementation of a PostgreSQL adapter for Python.
 
-This repository manages the Japanese translation of Psycopg 3 documentation, served by Read the Docs at https://psycopg3-ja.readthedocs.io.
+This repository manages the Japanese translation of Psycopg 3 documentation, served by Read the Docs at https://psycopg3-ja.translation.shuuji3.xyz.
 
 You can read the original English documentation at https://www.psycopg.org/psycopg3/docs/, and can see the source git repository for the source code.
 
