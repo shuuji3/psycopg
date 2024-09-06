@@ -9,7 +9,6 @@ RUN pip install -e "../psycopg[docs]" -e ../psycopg_pool
 # · Pull Request #110 · wpilibsuite/sphinxext-opengraph
 # - https://github.com/wpilibsuite/sphinxext-opengraph/pull/110
 RUN apt update && apt install fonts-noto-cjk
-RUN pip install matplotlib
-RUN pip install sphinxext-opengraph
+RUN pip install -r requirements.txt
 
 CMD ["make", "serve"]
