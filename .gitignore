@@ -6,6 +6,7 @@
 __pycache__/
 /docs/_build/
 *.html
+!/docs/japanese-translation-announcement.html
 /psycopg_binary/
 .vscode
 .venv

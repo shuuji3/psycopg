@@ -66,7 +66,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".venv"]
 # -- Options for HTML output -------------------------------------------------
 
 # The announcement may be in the website but not shipped with the docs
-ann_file = docs_dir / "../../templates/docs3-announcement.html"
+ann_file = docs_dir / "japanese-translation-announcement.html"
 if ann_file.exists():
     with ann_file.open() as f:
         announcement = f.read()
