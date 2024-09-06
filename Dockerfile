@@ -1,4 +1,4 @@
-FROM python:3.11-bookworm
+FROM python:3.12-bookworm
 COPY . /app/
 WORKDIR /app/docs/
 RUN pip install -e "../psycopg[docs]" -e ../psycopg_pool
