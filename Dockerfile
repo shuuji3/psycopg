@@ -10,6 +10,6 @@ RUN pip install -e "../psycopg[docs]" -e ../psycopg_pool
 # - https://github.com/wpilibsuite/sphinxext-opengraph/pull/110
 RUN apt update && apt install fonts-noto-cjk
 RUN pip install matplotlib
-RUN pip install git+https://github.com/shuuji3/sphinxext-opengraph@feat/support-ogp-social-cards-font-option
+RUN pip install sphinxext-opengraph
 
 CMD ["make", "serve"]
